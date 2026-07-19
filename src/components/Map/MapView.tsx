@@ -1,35 +1,51 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import type { Dispatch, SetStateAction } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup
+} from "react-leaflet";
 
-import { pc } from "../../data/pc";
+import "leaflet/dist/leaflet.css";
+
+import { useEffect } from "react";
+
+import L from "leaflet";
+
 import PositionMarker from "./PositionMarker";
 import RouteLine from "./RouteLine";
 
+import { pc } from "../../data/pc";
+
+
 
 type Parc = {
+
   id: string;
   nom: string;
   adresse: string;
   latitude: number;
   longitude: number;
   ferme: boolean;
-  heureFermeture: string | null;
+  heureFermeture?: string | null;
+
 };
 
 
-type MapViewProps = {
+
+type Props = {
 
   parcs: Parc[];
 
-  setParcs: Dispatch<
-    SetStateAction<Parc[]>
+  setParcs: React.Dispatch<
+    React.SetStateAction<Parc[]>
   >;
 
   positionAgent: [number, number] | null;
 
-  setPositionAgent: Dispatch<
-    SetStateAction<[number, number] | null>
-  >;
+  setPositionAgent:
+    React.Dispatch<
+      React.SetStateAction<[number, number] | null>
+    >;
 
 };
 
@@ -47,53 +63,78 @@ function MapView({
 
   setPositionAgent
 
-}: MapViewProps) {
+}: Props) {
 
 
 
-  function fermerParc(id: string) {
+  useEffect(() => {
 
 
-  const maintenant = new Date();
+    delete (L.Icon.Default.prototype as any)
+      ._getIconUrl;
 
 
-  const heure =
-    maintenant.toLocaleTimeString(
-      "fr-FR",
-      {
-        hour: "2-digit",
-        minute: "2-digit"
-      }
+    L.Icon.Default.mergeOptions({
+
+      iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+
+      iconUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+
+      shadowUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
+
+    });
+
+
+  }, []);
+
+
+
+
+
+
+  function fermerParc(id:string) {
+
+
+    const heure =
+      new Date()
+      .toLocaleTimeString(
+        "fr-FR",
+        {
+          hour:"2-digit",
+          minute:"2-digit"
+        }
+      );
+
+
+
+    setParcs((anciens)=>
+
+      anciens.map((parc)=>
+
+        parc.id === id
+
+        ?
+
+        {
+          ...parc,
+          ferme:true,
+          heureFermeture:heure
+        }
+
+        :
+
+        parc
+
+      )
+
     );
 
+  }
 
 
-  setParcs((anciens) =>
-
-    anciens.map((parc) =>
-
-
-      parc.id === id
-
-        ? {
-
-            ...parc,
-
-            ferme: true,
-
-            heureFermeture: heure
-
-          }
-
-        : parc
-
-
-    )
-
-  );
-
-
-}
 
 
 
@@ -104,53 +145,39 @@ function MapView({
     <MapContainer
 
       center={[
-        43.633,
-        3.902
+        pc.latitude,
+        pc.longitude
       ]}
 
       zoom={14}
 
       style={{
-        height: "400px",
-        width: "100%"
+        height:"500px",
+        width:"100%"
       }}
 
     >
-
 
 
       <TileLayer
 
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 
-        attribution="&copy; OpenStreetMap contributors"
-
       />
 
 
-
-
-      {/* POSITION AGENT */}
 
       <PositionMarker
 
-        setPositionAgent={
-          setPositionAgent
-        }
+        positionAgent={positionAgent}
+
+        setPositionAgent={setPositionAgent}
 
       />
-      <RouteLine
-  parcs={parcs}
-  positionAgent={positionAgent}
-/>
 
 
 
-
-
-      {/* PARCS */}
-
-      {parcs.map((parc) => (
+      {parcs.map((parc)=>(
 
 
         <Marker
@@ -158,110 +185,80 @@ function MapView({
           key={parc.id}
 
           position={[
-
             parc.latitude,
-
             parc.longitude
-
           ]}
 
         >
 
-
           <Popup>
 
 
-            <div>
+            <h3 className="font-bold">
+
+              🌳 {parc.nom}
+
+            </h3>
 
 
-              <h3 className="font-bold text-lg">
+            <p>
 
-                🌳 {parc.nom}
+              {parc.adresse}
 
-              </h3>
+            </p>
 
 
+
+            <p>
+
+              {parc.ferme
+
+              ?
+
+              "🟢 Fermé"
+
+              :
+
+              "🔴 À fermer"
+
+              }
+
+            </p>
+
+
+
+            {parc.ferme &&
+              parc.heureFermeture && (
 
               <p>
 
-                {parc.adresse}
+                🕒 {parc.heureFermeture}
 
               </p>
 
+            )}
 
 
 
-              <p className="mt-2">
+            {!parc.ferme && (
 
-Statut :
+              <button
 
-{parc.ferme
+                onClick={()=>
+                  fermerParc(parc.id)
+                }
 
-? " 🟢 Fermé"
+              >
 
-: " 🔴 À fermer"
+                ✅ Fermer ce parc
 
-}
+              </button>
 
-</p>
+            )}
 
-
-{parc.ferme && parc.heureFermeture && (
-
-<p>
-
-🕒 Fermé à : {parc.heureFermeture}
-
-</p>
-
-)}
-
-
-
-
-
-              {!parc.ferme && (
-
-
-                <button
-
-                  onClick={() =>
-                    fermerParc(parc.id)
-                  }
-
-                  style={{
-
-                    marginTop: "10px",
-
-                    background: "green",
-
-                    color: "white",
-
-                    padding: "8px",
-
-                    borderRadius: "8px",
-
-                    cursor: "pointer"
-
-                  }}
-
-                >
-
-                  ✅ Fermer ce parc
-
-
-                </button>
-
-
-              )}
-
-
-
-            </div>
 
 
           </Popup>
-
 
 
         </Marker>
@@ -271,44 +268,20 @@ Statut :
 
 
 
-
-
-
-
-      {/* PC PAPA CHARLIE */}
-
-
       <Marker
 
         position={[
-
           pc.latitude,
-
           pc.longitude
-
         ]}
 
       >
 
-
         <Popup>
 
-
-          <strong>
-
-            🏁 PC Papa Charlie
-
-          </strong>
-
-
-          <br />
-
-
-          {pc.adresse}
-
+          🏁 PC Papa Charlie
 
         </Popup>
-
 
 
       </Marker>
@@ -317,8 +290,16 @@ Statut :
 
 
 
-    </MapContainer>
+      <RouteLine
 
+        parcs={parcs}
+
+        positionAgent={positionAgent}
+
+      />
+
+
+    </MapContainer>
 
   );
 

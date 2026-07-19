@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
+
 import { parcs } from "./data/parcs";
+import { tourneeInitiale } from "./data/tournee";
+
 import MapView from "./components/Map/MapView";
 import NextStop from "./components/Route/NextStop";
 import Tournee from "./components/Route/Tournee";
+
 
 
 function App() {
@@ -10,9 +14,10 @@ function App() {
 
   const [listeParcs, setListeParcs] = useState(() => {
 
-    const sauvegarde = localStorage.getItem(
-      "patrouille-parcs"
-    );
+    const sauvegarde =
+      localStorage.getItem(
+        "patrouille-parcs"
+      );
 
 
     if (sauvegarde) {
@@ -28,18 +33,49 @@ function App() {
 
 
 
+
   const [positionAgent, setPositionAgent] =
     useState<[number, number] | null>(null);
 
 
 
 
-  // Sauvegarde automatique
+  const [tournee, setTournee] =
+    useState(() => {
+
+      const sauvegarde =
+        localStorage.getItem(
+          "patrouille-tournee"
+        );
+
+
+      if (sauvegarde) {
+
+        return JSON.parse(sauvegarde);
+
+      }
+
+
+      return tourneeInitiale;
+
+    });
+
+
+
+
+
+
+
+  // Sauvegarde des parcs
+
   useEffect(() => {
 
     localStorage.setItem(
+
       "patrouille-parcs",
+
       JSON.stringify(listeParcs)
+
     );
 
   }, [listeParcs]);
@@ -48,9 +84,76 @@ function App() {
 
 
 
-  const nombreParcs = listeParcs.filter(
-    (parc) => !parc.ferme
-  ).length;
+
+
+  // Sauvegarde tournée
+
+  useEffect(() => {
+
+    localStorage.setItem(
+
+      "patrouille-tournee",
+
+      JSON.stringify(tournee)
+
+    );
+
+  }, [tournee]);
+
+
+
+
+
+
+
+
+
+  const nombreParcs =
+    listeParcs.filter(
+
+      (parc) => !parc.ferme
+
+    ).length;
+
+
+
+
+
+
+
+
+
+  function demarrerTournee() {
+
+
+    const maintenant = new Date();
+
+
+    const heure =
+      maintenant.toLocaleTimeString(
+        "fr-FR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+
+
+    setTournee({
+
+      ...tournee,
+
+      heureDebut: heure
+
+    });
+
+
+  }
+
+
+
+
 
 
 
@@ -62,23 +165,31 @@ function App() {
 
 
 
-      {/* TITRE */}
-
       <header className="text-center mt-4 mb-6">
 
+
         <h1 className="text-4xl font-bold">
+
           🌳 Patrouille Parcs
+
         </h1>
 
 
+
         <p className="mt-3 text-lg">
+
           Fermeture des parcs
+
         </p>
+
 
 
         <p className="text-sm opacity-80">
+
           Castelnau-le-Lez
+
         </p>
+
 
       </header>
 
@@ -86,17 +197,22 @@ function App() {
 
 
 
-      {/* CARTE */}
+
 
       <section className="w-full bg-white rounded-2xl overflow-hidden shadow-xl">
 
 
         <MapView
+
           parcs={listeParcs}
+
           setParcs={setListeParcs}
+
           positionAgent={positionAgent}
+
           setPositionAgent={setPositionAgent}
-/>
+
+        />
 
 
       </section>
@@ -106,8 +222,6 @@ function App() {
 
 
 
-
-      {/* PROCHAIN ARRET */}
 
       <NextStop
 
@@ -122,7 +236,6 @@ function App() {
 
 
 
-      {/* TOURNEE COMPLETE */}
 
       <Tournee
 
@@ -138,21 +251,27 @@ function App() {
 
 
 
-      {/* COMPTEUR */}
+
 
       <main className="w-full mt-6">
+
 
 
         <div className="bg-white text-green-800 rounded-2xl p-6 shadow-xl text-center">
 
 
           <p className="text-lg">
+
             Parcs à fermer
+
           </p>
 
 
+
           <p className="text-6xl font-bold mt-2">
+
             {nombreParcs}
+
           </p>
 
 
@@ -162,23 +281,74 @@ function App() {
 
 
 
+
+
+        {tournee.heureDebut && (
+
+          <div className="mt-4 bg-white text-green-800 rounded-xl p-4 text-center">
+
+
+            <p className="font-bold">
+
+              🟢 Tournée en cours
+
+            </p>
+
+
+
+            <p>
+
+              Départ : {tournee.heureDebut}
+
+            </p>
+
+
+          </div>
+
+        )}
+
+
+
+
+
+
+
+
         <button
+
+          onClick={demarrerTournee}
+
+
           className="
+
           mt-6
+
           w-full
+
           bg-white
+
           text-green-700
+
           font-bold
+
           text-xl
+
           py-4
+
           rounded-2xl
+
           shadow-lg
+
           "
+
         >
+
 
           🚀 Démarrer la tournée
 
+
         </button>
+
 
 
       </main>
@@ -188,18 +358,23 @@ function App() {
 
 
 
-      {/* PC */}
+
+
 
       <footer className="mt-8 text-center">
 
 
         <p>
+
           🏁 Retour PC
+
         </p>
 
 
         <p className="text-sm opacity-80">
+
           Rue des Églantiers
+
         </p>
 
 
