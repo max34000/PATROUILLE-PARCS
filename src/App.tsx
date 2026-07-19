@@ -1,48 +1,20 @@
 import { useEffect, useState } from "react";
 
 import { parcs } from "./data/parcs";
-import { tourneeInitiale } from "./data/tournee";
+
+import type { Parc } from "./types/Parc";
 
 import MapView from "./components/Map/MapView";
 import NextStop from "./components/Route/NextStop";
 import Tournee from "./components/Route/Tournee";
-import { calculerItineraire } from "./services/routing";
-
+import PatrolMode from "./components/Patrol/PatrolMode";
 
 
 function App() {
-  
-    console.log(import.meta.env.VITE_ORS_API_KEY);
-    useEffect(() => {
-
-  calculerItineraire(
-
-    [
-      43.644969,
-      3.910237
-    ],
-
-    [
-      43.630154,
-      3.907396
-    ]
-
-  )
-  .then((resultat)=>{
-
-    console.log(
-      "ITINERAIRE",
-      resultat
-    );
-
-  })
-  .catch(console.error);
 
 
-}, []);
-
-
-  const [listeParcs, setListeParcs] = useState(() => {
+  const [listeParcs, setListeParcs] =
+  useState<Parc[]>(() => {
 
     const sauvegarde =
       localStorage.getItem(
@@ -52,7 +24,7 @@ function App() {
 
     if (sauvegarde) {
 
-      return JSON.parse(sauvegarde);
+      return JSON.parse(sauvegarde) as Parc[];
 
     }
 
@@ -64,39 +36,20 @@ function App() {
 
 
 
+
   const [positionAgent, setPositionAgent] =
     useState<[number, number] | null>(null);
 
 
 
 
-  const [tournee, setTournee] =
-    useState(() => {
-
-      const sauvegarde =
-        localStorage.getItem(
-          "patrouille-tournee"
-        );
-
-
-      if (sauvegarde) {
-
-        return JSON.parse(sauvegarde);
-
-      }
-
-
-      return tourneeInitiale;
-
-    });
+  const [modePatrouille, setModePatrouille] =
+    useState(false);
 
 
 
 
 
-
-
-  // Sauvegarde des parcs
 
   useEffect(() => {
 
@@ -116,33 +69,9 @@ function App() {
 
 
 
-  // Sauvegarde tournée
-
-  useEffect(() => {
-
-    localStorage.setItem(
-
-      "patrouille-tournee",
-
-      JSON.stringify(tournee)
-
-    );
-
-  }, [tournee]);
-
-
-
-
-
-
-
-
-
   const nombreParcs =
     listeParcs.filter(
-
-      (parc) => !parc.ferme
-
+      (parc)=> !parc.ferme
     ).length;
 
 
@@ -151,33 +80,59 @@ function App() {
 
 
 
+  const prochainParc =
+    listeParcs.find(
+      (parc)=> !parc.ferme
+    );
 
 
-  function demarrerTournee() {
 
 
-    const maintenant = new Date();
+
+
+
+  function fermerProchainParc() {
+
+
+    if (!prochainParc) {
+      return;
+    }
+
 
 
     const heure =
-      maintenant.toLocaleTimeString(
+      new Date()
+      .toLocaleTimeString(
         "fr-FR",
         {
-          hour: "2-digit",
-          minute: "2-digit"
+          hour:"2-digit",
+          minute:"2-digit"
         }
       );
 
 
 
-    setTournee({
+    setListeParcs((anciens)=>
 
-      ...tournee,
+      anciens.map((parc)=>
 
-      heureDebut: heure
+        parc.id === prochainParc.id
 
-    });
+        ?
 
+        {
+          ...parc,
+          ferme:true,
+          heureFermeture:heure
+        }
+
+        :
+
+        parc
+
+      )
+
+    );
 
   }
 
@@ -188,10 +143,12 @@ function App() {
 
 
 
-
   return (
 
+
     <div className="min-h-screen bg-green-700 text-white flex flex-col p-6">
+
+
 
 
 
@@ -221,6 +178,7 @@ function App() {
         </p>
 
 
+
       </header>
 
 
@@ -229,23 +187,74 @@ function App() {
 
 
 
-      <section className="w-full bg-white rounded-2xl overflow-hidden shadow-xl">
+
+      <button
+
+        onClick={()=>
+          setModePatrouille(!modePatrouille)
+        }
+
+        className="
+          bg-white
+          text-green-700
+          font-bold
+          px-6
+          py-4
+          rounded-2xl
+          shadow-xl
+          mb-6
+          text-xl
+        "
+
+      >
+
+        {modePatrouille
+
+          ?
+
+          "🖥️ Tableau de bord"
+
+          :
+
+          "🚓 Mode Patrouille"
+
+        }
 
 
-        <MapView
+      </button>
 
-          parcs={listeParcs}
 
-          setParcs={setListeParcs}
 
-          positionAgent={positionAgent}
 
-          setPositionAgent={setPositionAgent}
+
+
+
+      {modePatrouille && (
+
+        <PatrolMode
+
+
+          parcSuivant={
+            prochainParc || null
+          }
+
+
+          distance={null}
+
+
+          duree={null}
+
+
+
+          onFermer={
+            fermerProchainParc
+          }
+
 
         />
 
+      )}
 
-      </section>
 
 
 
@@ -253,27 +262,29 @@ function App() {
 
 
 
-      <NextStop
+      {!modePatrouille && (
 
-        parcs={listeParcs}
 
-        positionAgent={positionAgent}
+        <>
 
-      />
 
+          <section className="w-full bg-white rounded-2xl overflow-hidden shadow-xl">
 
 
+            <MapView
 
+              parcs={listeParcs}
 
+              setParcs={setListeParcs}
 
+              positionAgent={positionAgent}
 
-      <Tournee
+              setPositionAgent={setPositionAgent}
 
-        parcs={listeParcs}
+            />
 
-        positionAgent={positionAgent}
 
-      />
+          </section>
 
 
 
@@ -281,108 +292,67 @@ function App() {
 
 
 
+          <NextStop
 
+            parcs={listeParcs}
 
-      <main className="w-full mt-6">
+            positionAgent={positionAgent}
 
+          />
 
 
-        <div className="bg-white text-green-800 rounded-2xl p-6 shadow-xl text-center">
 
 
-          <p className="text-lg">
 
-            Parcs à fermer
 
-          </p>
 
+          <Tournee
 
+            parcs={listeParcs}
 
-          <p className="text-6xl font-bold mt-2">
+            positionAgent={positionAgent}
 
-            {nombreParcs}
+          />
 
-          </p>
 
 
-        </div>
 
 
 
 
+          <main className="w-full mt-6">
 
 
+            <div className="bg-white text-green-800 rounded-2xl p-6 shadow-xl text-center">
 
-        {tournee.heureDebut && (
 
-          <div className="mt-4 bg-white text-green-800 rounded-xl p-4 text-center">
+              <p className="text-lg">
 
+                Parcs à fermer
 
-            <p className="font-bold">
+              </p>
 
-              🟢 Tournée en cours
 
-            </p>
 
+              <p className="text-6xl font-bold mt-2">
 
+                {nombreParcs}
 
-            <p>
+              </p>
 
-              Départ : {tournee.heureDebut}
 
-            </p>
+            </div>
 
 
-          </div>
 
-        )}
+          </main>
 
 
 
+        </>
 
 
-
-
-
-        <button
-
-          onClick={demarrerTournee}
-
-
-          className="
-
-          mt-6
-
-          w-full
-
-          bg-white
-
-          text-green-700
-
-          font-bold
-
-          text-xl
-
-          py-4
-
-          rounded-2xl
-
-          shadow-lg
-
-          "
-
-        >
-
-
-          🚀 Démarrer la tournée
-
-
-        </button>
-
-
-
-      </main>
-
+      )}
 
 
 
@@ -413,7 +383,10 @@ function App() {
 
 
 
+
+
     </div>
+
 
   );
 
