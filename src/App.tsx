@@ -4,13 +4,24 @@ import { parcs } from "./data/parcs";
 
 import type { Parc } from "./types/Parc";
 
-import { calculerItineraire } from "./services/routing";
-
 import MapView from "./components/Map/MapView";
+
 import NextStop from "./components/Route/NextStop";
 import Tournee from "./components/Route/Tournee";
+
 import PatrolMode from "./components/Patrol/PatrolMode";
-import { trouverParcLePlusProche } from "./utils/nextPark";
+import Progression from "./components/Patrol/Progression";
+import Historique from "./components/Patrol/Historique";
+import EndTournee from "./components/Patrol/EndTournee";
+
+import { calculerItineraire }
+from "./services/routing";
+
+import { trouverParcLePlusProche }
+from "./utils/nextPark";
+
+import { sauvegarderHistorique }
+from "./utils/historique";
 
 
 
@@ -19,26 +30,29 @@ import { trouverParcLePlusProche } from "./utils/nextPark";
 function App() {
 
 
+
   const [listeParcs, setListeParcs] =
+
     useState<Parc[]>(() => {
 
 
       const sauvegarde =
+
         localStorage.getItem(
           "patrouille-parcs"
         );
 
 
+      return sauvegarde
 
-      if (sauvegarde) {
+        ?
 
-        return JSON.parse(sauvegarde) as Parc[];
+        JSON.parse(sauvegarde)
 
-      }
+        :
 
+        parcs;
 
-
-      return parcs;
 
     });
 
@@ -49,6 +63,7 @@ function App() {
 
 
   const [positionAgent, setPositionAgent] =
+
     useState<[number, number] | null>(null);
 
 
@@ -56,8 +71,16 @@ function App() {
 
 
 
-
   const [modePatrouille, setModePatrouille] =
+
+    useState(false);
+
+
+
+
+
+  const [retourPC, setRetourPC] =
+
     useState(false);
 
 
@@ -65,14 +88,17 @@ function App() {
 
 
 
-
   const [distanceProchain, setDistanceProchain] =
+
     useState<number | null>(null);
+
+
 
 
 
 
   const [dureeProchain, setDureeProchain] =
+
     useState<number | null>(null);
 
 
@@ -83,7 +109,7 @@ function App() {
 
 
 
-  useEffect(() => {
+  useEffect(()=>{
 
 
     localStorage.setItem(
@@ -95,23 +121,7 @@ function App() {
     );
 
 
-  }, [listeParcs]);
-
-
-
-
-
-
-
-
-
-  const nombreParcs =
-
-    listeParcs.filter(
-
-      (parc)=> !parc.ferme
-
-    ).length;
+  },[listeParcs]);
 
 
 
@@ -123,27 +133,36 @@ function App() {
 
   const prochainParc =
 
-  positionAgent
 
-  ?
-
-  trouverParcLePlusProche(
-
-    positionAgent,
-
-    listeParcs
-
-  )
-
-  :
-
-  listeParcs.find(
-
-    (parc)=> !parc.ferme
-
-  ) || null;
+    positionAgent
 
 
+    ?
+
+
+    trouverParcLePlusProche(
+
+      positionAgent,
+
+      listeParcs
+
+    )
+
+
+    :
+
+
+    listeParcs.find(
+
+      (parc)=>
+
+        !parc.ferme
+
+    )
+
+    ||
+
+    null;
 
 
 
@@ -151,22 +170,20 @@ function App() {
 
 
 
-  // Calcul route vers prochain parc
 
-  useEffect(() => {
-
-
-    async function calculerRoute() {
+  useEffect(()=>{
 
 
-      if (
+    async function chargerRoute(){
+
+
+      if(
 
         !positionAgent ||
 
         !prochainParc
 
-      ) {
-
+      ){
 
         setDistanceProchain(null);
 
@@ -180,8 +197,7 @@ function App() {
 
 
 
-
-      try {
+      try{
 
 
         const resultat =
@@ -202,14 +218,11 @@ function App() {
 
 
 
-
-
         setDistanceProchain(
 
           resultat.distance
 
         );
-
 
 
 
@@ -221,22 +234,10 @@ function App() {
 
 
 
-
-
-        console.log(
-
-          "Route patrouille",
-
-          resultat
-
-        );
-
-
-
       }
 
-      catch(error) {
 
+      catch(error){
 
         console.error(
 
@@ -246,7 +247,6 @@ function App() {
 
         );
 
-
       }
 
 
@@ -255,12 +255,11 @@ function App() {
 
 
 
-    calculerRoute();
+    chargerRoute();
 
 
 
-
-  }, [
+  },[
 
     positionAgent,
 
@@ -276,14 +275,16 @@ function App() {
 
 
 
-  function fermerProchainParc() {
+  function fermerProchainParc(){
 
 
-    if (!prochainParc) {
+
+    if(!prochainParc){
 
       return;
 
     }
+
 
 
 
@@ -312,48 +313,134 @@ function App() {
 
 
 
-    setListeParcs(
+    sauvegarderHistorique({
 
-      anciens =>
+      parcId: prochainParc.id,
 
+      parcNom: prochainParc.nom,
 
-        anciens.map(
+      heure
 
-          (parc)=>
-
-
-            parc.id === prochainParc.id
+    });
 
 
-            ?
 
 
-            {
-
-              ...parc,
-
-              ferme:true,
-
-              heureFermeture:heure
-
-            }
 
 
-            :
+
+    setListeParcs((anciens)=>
 
 
-            parc
+
+      anciens.map((parc)=>
 
 
-        )
+
+        parc.id === prochainParc.id
+
+
+
+        ?
+
+
+
+        {
+
+          ...parc,
+
+          ferme:true,
+
+          heureFermeture:heure
+
+        }
+
+
+
+        :
+
+
+
+        parc
+
+
+
+      )
+
 
 
     );
 
 
+
+
+
+
+
+    const restants =
+
+      listeParcs.filter(
+
+        (parc)=>
+
+          !parc.ferme &&
+
+          parc.id !== prochainParc.id
+
+      ).length;
+
+
+
+
+
+    if(restants === 0){
+
+
+      setTimeout(()=>{
+
+
+        setRetourPC(true);
+
+
+      },500);
+
+
+
+    }
+
+
+
   }
 
 
+
+
+
+
+
+
+
+  if(retourPC){
+
+
+    return (
+
+      <EndTournee
+
+        onRetour={()=>
+
+
+          setRetourPC(false)
+
+
+        }
+
+      />
+
+    );
+
+
+  }
 
 
 
@@ -369,54 +456,21 @@ function App() {
       min-h-screen
       bg-green-700
       text-white
-      flex
-      flex-col
       p-6
     ">
 
 
 
-
-
-
-
-      <header className="
+      <h1 className="
+        text-4xl
+        font-bold
         text-center
-        mt-4
         mb-6
       ">
 
+        🌳 Patrouille Parcs
 
-        <h1 className="
-          text-4xl
-          font-bold
-        ">
-
-          🌳 Patrouille Parcs
-
-        </h1>
-
-
-
-        <p className="mt-3 text-lg">
-
-          Fermeture des parcs
-
-        </p>
-
-
-
-        <p className="text-sm opacity-80">
-
-          Castelnau-le-Lez
-
-        </p>
-
-
-
-      </header>
-
-
+      </h1>
 
 
 
@@ -427,9 +481,13 @@ function App() {
 
         onClick={()=>
 
+
           setModePatrouille(
+
             !modePatrouille
+
           )
+
 
         }
 
@@ -437,21 +495,22 @@ function App() {
         className="
           bg-white
           text-green-700
+          rounded-2xl
+          p-4
           font-bold
           text-xl
-          py-4
-          rounded-2xl
-          shadow-xl
+          w-full
           mb-6
         "
 
       >
 
+
         {modePatrouille
 
           ?
 
-          "🖥️ Tableau de bord"
+          "🗺️ Carte"
 
           :
 
@@ -469,26 +528,63 @@ function App() {
 
 
 
-
       {modePatrouille && (
 
 
-        <PatrolMode
+        <>
 
 
-          parcSuivant={prochainParc}
+          <Progression
 
 
-          distance={distanceProchain}
+            total={listeParcs.length}
 
 
-          duree={dureeProchain}
+            fermes={
+
+              listeParcs.filter(
+
+                (p)=>
+
+                  p.ferme
+
+              ).length
+
+            }
 
 
-          onFermer={fermerProchainParc}
+          />
 
 
-        />
+
+
+
+          <PatrolMode
+
+
+            parcSuivant={prochainParc}
+
+
+            distance={distanceProchain}
+
+
+            duree={dureeProchain}
+
+
+            onFermer={fermerProchainParc}
+
+
+          />
+
+
+
+
+
+          <Historique />
+
+
+
+        </>
 
 
       )}
@@ -507,37 +603,22 @@ function App() {
         <>
 
 
-          <section className="
-            w-full
-            bg-white
-            rounded-2xl
-            overflow-hidden
-            shadow-xl
-          ">
+          <MapView
 
 
-            <MapView
+            parcs={listeParcs}
 
 
-              parcs={listeParcs}
+            setParcs={setListeParcs}
 
 
-              setParcs={setListeParcs}
+            positionAgent={positionAgent}
 
 
-              positionAgent={positionAgent}
+            setPositionAgent={setPositionAgent}
 
 
-              setPositionAgent={setPositionAgent}
-
-
-            />
-
-
-          </section>
-
-
-
+          />
 
 
 
@@ -546,13 +627,14 @@ function App() {
 
           <NextStop
 
+
             parcs={listeParcs}
+
 
             positionAgent={positionAgent}
 
+
           />
-
-
 
 
 
@@ -561,51 +643,14 @@ function App() {
 
           <Tournee
 
+
             parcs={listeParcs}
+
 
             positionAgent={positionAgent}
 
+
           />
-
-
-
-
-
-
-
-
-
-          <div className="
-            bg-white
-            text-green-800
-            rounded-2xl
-            p-6
-            shadow-xl
-            text-center
-            mt-6
-          ">
-
-
-            <p className="text-lg">
-
-              Parcs à fermer
-
-            </p>
-
-
-
-            <p className="
-              text-6xl
-              font-bold
-              mt-2
-            ">
-
-              {nombreParcs}
-
-            </p>
-
-
-          </div>
 
 
 
@@ -619,47 +664,11 @@ function App() {
 
 
 
-
-
-
-      <footer className="
-        mt-8
-        text-center
-      ">
-
-
-        <p>
-
-          🏁 Retour PC
-
-        </p>
-
-
-
-        <p className="
-          text-sm
-          opacity-80
-        ">
-
-          Rue des Églantiers
-
-        </p>
-
-
-      </footer>
-
-
-
-
-
     </div>
 
   );
 
-
 }
-
-
 
 
 
