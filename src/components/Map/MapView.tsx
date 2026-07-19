@@ -15,20 +15,33 @@ import PositionMarker from "./PositionMarker";
 import RouteLine from "./RouteLine";
 
 import { pc } from "../../data/pc";
+
 import { calculerItineraire } from "../../services/routing";
+
+import { trouverParcLePlusProche }
+from "../../utils/nextPark";
+
 
 
 type Parc = {
 
   id: string;
+
   nom: string;
+
   adresse: string;
+
   latitude: number;
+
   longitude: number;
+
   ferme: boolean;
+
   heureFermeture?: string | null;
 
 };
+
+
 
 
 
@@ -36,11 +49,15 @@ type Props = {
 
   parcs: Parc[];
 
-  setParcs: React.Dispatch<
-    React.SetStateAction<Parc[]>
-  >;
+  setParcs:
+    React.Dispatch<
+      React.SetStateAction<Parc[]>
+    >;
 
-  positionAgent: [number, number] | null;
+
+  positionAgent:
+    [number, number] | null;
+
 
   setPositionAgent:
     React.Dispatch<
@@ -53,18 +70,26 @@ type Props = {
 
 
 
+
+
 function MapView({
 
   parcs,
+
   setParcs,
+
   positionAgent,
+
   setPositionAgent
 
 }: Props) {
 
 
+
   const [itineraire, setItineraire] =
     useState<[number, number][]>([]);
+
+
 
 
 
@@ -77,18 +102,22 @@ function MapView({
       ._getIconUrl;
 
 
+
     L.Icon.Default.mergeOptions({
 
       iconRetinaUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
 
+
       iconUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+
 
       shadowUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 
     });
+
 
 
   }, []);
@@ -97,27 +126,21 @@ function MapView({
 
 
 
-  // Calcul de la vraie route
+
+
+
+
+  // Calcul de la vraie route vers le parc le plus proche
+
   useEffect(() => {
+
 
 
     async function chargerRoute() {
 
 
+
       if (!positionAgent) {
-        return;
-      }
-
-
-
-      const prochainParc =
-        parcs.find(
-          (parc)=> !parc.ferme
-        );
-
-
-
-      if (!prochainParc) {
 
         setItineraire([]);
 
@@ -127,56 +150,142 @@ function MapView({
 
 
 
+
+
+
+      const prochainParc =
+
+        trouverParcLePlusProche(
+
+          positionAgent,
+
+          parcs
+
+        );
+
+
+
+
+
+
+
+      if (!prochainParc) {
+
+
+        setItineraire([]);
+
+        return;
+
+
+      }
+
+
+
+
+
+
+
       try {
 
 
+
         const resultat =
+
           await calculerItineraire(
+
 
             positionAgent,
 
+
             [
+
               prochainParc.latitude,
+
               prochainParc.longitude
+
             ]
+
 
           );
 
 
 
+
+
+
+
         setItineraire(
+
           resultat.geometrie
+
         );
+
+
+
+
+
 
 
         console.log(
-          "Route réelle",
+
+          "🚓 Route vers",
+
+          prochainParc.nom,
+
           resultat
+
         );
+
+
+
 
 
       }
 
-      catch(error){
+
+      catch(error) {
+
 
         console.error(
+
           "Erreur itinéraire",
+
           error
+
         );
 
+
+        setItineraire([]);
+
       }
+
+
 
 
     }
 
 
+
+
+
+
     chargerRoute();
 
 
+
+
+
   }, [
+
     positionAgent,
+
     parcs
+
   ]);
+
+
+
+
 
 
 
@@ -188,39 +297,71 @@ function MapView({
   function fermerParc(id:string) {
 
 
+
     const heure =
+
       new Date()
+
       .toLocaleTimeString(
+
         "fr-FR",
+
         {
+
           hour:"2-digit",
+
           minute:"2-digit"
+
         }
+
       );
+
+
+
 
 
 
     setParcs((anciens)=>
 
+
+
       anciens.map((parc)=>
+
+
 
         parc.id === id
 
+
         ?
 
+
         {
+
           ...parc,
+
           ferme:true,
+
           heureFermeture:heure
+
         }
+
+
 
         :
 
+
+
         parc
+
+
 
       )
 
+
+
     );
+
+
 
   }
 
@@ -232,41 +373,78 @@ function MapView({
 
 
 
+
+
+
   return (
+
+
 
     <MapContainer
 
+
+
       center={[
+
         pc.latitude,
+
         pc.longitude
+
       ]}
+
+
 
       zoom={14}
 
+
+
       style={{
+
         height:"500px",
+
         width:"100%"
+
       }}
+
+
 
     >
 
 
+
+
+
+
+
       <TileLayer
+
 
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 
+
       />
+
+
+
+
+
 
 
 
 
       <PositionMarker
 
+
         positionAgent={positionAgent}
+
 
         setPositionAgent={setPositionAgent}
 
+
       />
+
+
+
 
 
 
@@ -276,78 +454,131 @@ function MapView({
       {parcs.map((parc)=>(
 
 
+
         <Marker
+
+
 
           key={parc.id}
 
+
+
           position={[
+
             parc.latitude,
+
             parc.longitude
+
           ]}
 
+
+
         >
+
+
 
           <Popup>
 
 
+
             <h3 className="font-bold">
 
+
               🌳 {parc.nom}
+
 
             </h3>
 
 
+
+
             <p>
+
 
               {parc.adresse}
 
+
             </p>
+
+
 
 
 
             <p>
 
+
               {parc.ferme
 
-              ?
 
-              "🟢 Fermé"
+                ?
 
-              :
 
-              "🔴 À fermer"
+                "🟢 Fermé"
+
+
+                :
+
+
+                "🔴 À fermer"
+
 
               }
 
+
+
             </p>
+
+
+
 
 
 
             {parc.ferme &&
-            parc.heureFermeture && (
+
+              parc.heureFermeture && (
+
+
 
               <p>
+
                 🕒 {parc.heureFermeture}
+
               </p>
+
+
 
             )}
 
 
 
 
+
+
+
             {!parc.ferme && (
+
+
 
               <button
 
+
+
                 onClick={()=>
+
                   fermerParc(parc.id)
+
                 }
+
+
 
               >
 
                 ✅ Fermer ce parc
 
+
               </button>
+
+
 
             )}
 
@@ -356,7 +587,10 @@ function MapView({
           </Popup>
 
 
+
+
         </Marker>
+
 
 
       ))}
@@ -367,20 +601,34 @@ function MapView({
 
 
 
+
+
       <Marker
 
+
+
         position={[
+
           pc.latitude,
+
           pc.longitude
+
         ]}
+
+
 
       >
 
+
+
         <Popup>
+
 
           🏁 PC Papa Charlie
 
+
         </Popup>
+
 
 
       </Marker>
@@ -390,19 +638,36 @@ function MapView({
 
 
 
+
+
+
       <RouteLine
 
+
+
         points={itineraire}
+
+
 
       />
 
 
 
+
+
+
+
     </MapContainer>
+
+
 
   );
 
 }
+
+
+
+
 
 
 

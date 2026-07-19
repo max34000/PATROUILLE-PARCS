@@ -1,5 +1,6 @@
 import type { Parc } from "../../types/Parc";
 
+
 interface Props {
 
   parcSuivant: Parc | null;
@@ -11,6 +12,8 @@ interface Props {
   onFermer: () => void;
 
 }
+
+
 
 
 
@@ -27,7 +30,9 @@ function PatrolMode({
 }: Props) {
 
 
+
   if (!parcSuivant) {
+
 
     return (
 
@@ -43,19 +48,53 @@ function PatrolMode({
         text-center
       ">
 
-        <h1 className="text-4xl font-bold">
+
+        <h1 className="
+          text-4xl
+          font-bold
+        ">
+
           🎉 Tournée terminée
+
         </h1>
 
+
+
         <p className="text-xl mt-6">
+
           Tous les parcs sont fermés
+
         </p>
+
 
       </div>
 
     );
 
   }
+
+
+
+
+
+  function ouvrirNavigation() {
+
+
+    const url =
+
+      `https://www.google.com/maps/dir/?api=1&destination=${parcSuivant.latitude},${parcSuivant.longitude}`;
+
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+  }
+
+
+
+
 
 
 
@@ -72,6 +111,7 @@ function PatrolMode({
     ">
 
 
+
       <h1 className="
         text-4xl
         font-bold
@@ -81,6 +121,9 @@ function PatrolMode({
         🚓 PATROUILLE
 
       </h1>
+
+
+
 
 
 
@@ -98,11 +141,13 @@ function PatrolMode({
       ">
 
 
+
         <p className="text-lg">
 
           Prochain arrêt
 
         </p>
+
 
 
 
@@ -118,6 +163,8 @@ function PatrolMode({
 
 
 
+
+
         <p className="mt-4">
 
           📍 {parcSuivant.adresse}
@@ -126,19 +173,33 @@ function PatrolMode({
 
 
 
+
+
+
+
         {distance !== null && (
 
-          <p className="text-xl mt-6">
+
+          <p className="
+            text-xl
+            mt-6
+          ">
 
             📏 {distance.toFixed(2)} km
 
           </p>
 
+
         )}
 
 
 
+
+
+
+
         {duree !== null && (
+
 
           <p className="text-xl">
 
@@ -146,7 +207,10 @@ function PatrolMode({
 
           </p>
 
+
         )}
+
+
 
 
       </div>
@@ -154,7 +218,16 @@ function PatrolMode({
 
 
 
+
+
+
+
+
       <button
+
+
+        onClick={ouvrirNavigation}
+
 
         className="
           mt-8
@@ -173,7 +246,12 @@ function PatrolMode({
 
         🚗 Y ALLER
 
+
       </button>
+
+
+
+
 
 
 
@@ -181,7 +259,9 @@ function PatrolMode({
 
       <button
 
+
         onClick={onFermer}
+
 
         className="
           mt-5
@@ -200,7 +280,10 @@ function PatrolMode({
 
         ✅ PARC FERMÉ
 
+
       </button>
+
+
 
 
 
@@ -209,6 +292,8 @@ function PatrolMode({
   );
 
 }
+
+
 
 
 

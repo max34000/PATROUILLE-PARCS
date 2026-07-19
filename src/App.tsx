@@ -4,34 +4,45 @@ import { parcs } from "./data/parcs";
 
 import type { Parc } from "./types/Parc";
 
+import { calculerItineraire } from "./services/routing";
+
 import MapView from "./components/Map/MapView";
 import NextStop from "./components/Route/NextStop";
 import Tournee from "./components/Route/Tournee";
 import PatrolMode from "./components/Patrol/PatrolMode";
+import { trouverParcLePlusProche } from "./utils/nextPark";
+
+
+
 
 
 function App() {
 
 
   const [listeParcs, setListeParcs] =
-  useState<Parc[]>(() => {
-
-    const sauvegarde =
-      localStorage.getItem(
-        "patrouille-parcs"
-      );
+    useState<Parc[]>(() => {
 
 
-    if (sauvegarde) {
+      const sauvegarde =
+        localStorage.getItem(
+          "patrouille-parcs"
+        );
 
-      return JSON.parse(sauvegarde) as Parc[];
-
-    }
 
 
-    return parcs;
+      if (sauvegarde) {
 
-  });
+        return JSON.parse(sauvegarde) as Parc[];
+
+      }
+
+
+
+      return parcs;
+
+    });
+
+
 
 
 
@@ -39,6 +50,9 @@ function App() {
 
   const [positionAgent, setPositionAgent] =
     useState<[number, number] | null>(null);
+
+
+
 
 
 
@@ -51,7 +65,26 @@ function App() {
 
 
 
+
+  const [distanceProchain, setDistanceProchain] =
+    useState<number | null>(null);
+
+
+
+
+  const [dureeProchain, setDureeProchain] =
+    useState<number | null>(null);
+
+
+
+
+
+
+
+
+
   useEffect(() => {
+
 
     localStorage.setItem(
 
@@ -61,6 +94,7 @@ function App() {
 
     );
 
+
   }, [listeParcs]);
 
 
@@ -69,9 +103,14 @@ function App() {
 
 
 
+
+
   const nombreParcs =
+
     listeParcs.filter(
+
       (parc)=> !parc.ferme
+
     ).length;
 
 
@@ -80,10 +119,156 @@ function App() {
 
 
 
+
+
   const prochainParc =
-    listeParcs.find(
-      (parc)=> !parc.ferme
-    );
+
+  positionAgent
+
+  ?
+
+  trouverParcLePlusProche(
+
+    positionAgent,
+
+    listeParcs
+
+  )
+
+  :
+
+  listeParcs.find(
+
+    (parc)=> !parc.ferme
+
+  ) || null;
+
+
+
+
+
+
+
+
+
+  // Calcul route vers prochain parc
+
+  useEffect(() => {
+
+
+    async function calculerRoute() {
+
+
+      if (
+
+        !positionAgent ||
+
+        !prochainParc
+
+      ) {
+
+
+        setDistanceProchain(null);
+
+        setDureeProchain(null);
+
+        return;
+
+      }
+
+
+
+
+
+
+      try {
+
+
+        const resultat =
+
+          await calculerItineraire(
+
+            positionAgent,
+
+            [
+
+              prochainParc.latitude,
+
+              prochainParc.longitude
+
+            ]
+
+          );
+
+
+
+
+
+        setDistanceProchain(
+
+          resultat.distance
+
+        );
+
+
+
+
+        setDureeProchain(
+
+          resultat.duree
+
+        );
+
+
+
+
+
+        console.log(
+
+          "Route patrouille",
+
+          resultat
+
+        );
+
+
+
+      }
+
+      catch(error) {
+
+
+        console.error(
+
+          "Erreur route",
+
+          error
+
+        );
+
+
+      }
+
+
+    }
+
+
+
+
+    calculerRoute();
+
+
+
+
+  }, [
+
+    positionAgent,
+
+    prochainParc
+
+  ]);
+
+
 
 
 
@@ -95,44 +280,76 @@ function App() {
 
 
     if (!prochainParc) {
+
       return;
+
     }
 
 
 
+
+
     const heure =
+
       new Date()
+
       .toLocaleTimeString(
+
         "fr-FR",
+
         {
+
           hour:"2-digit",
+
           minute:"2-digit"
+
         }
+
       );
 
 
 
-    setListeParcs((anciens)=>
 
-      anciens.map((parc)=>
 
-        parc.id === prochainParc.id
 
-        ?
+    setListeParcs(
 
-        {
-          ...parc,
-          ferme:true,
-          heureFermeture:heure
-        }
+      anciens =>
 
-        :
 
-        parc
+        anciens.map(
 
-      )
+          (parc)=>
+
+
+            parc.id === prochainParc.id
+
+
+            ?
+
+
+            {
+
+              ...parc,
+
+              ferme:true,
+
+              heureFermeture:heure
+
+            }
+
+
+            :
+
+
+            parc
+
+
+        )
+
 
     );
+
 
   }
 
@@ -143,19 +360,37 @@ function App() {
 
 
 
+
+
+
   return (
 
+    <div className="
+      min-h-screen
+      bg-green-700
+      text-white
+      flex
+      flex-col
+      p-6
+    ">
 
-    <div className="min-h-screen bg-green-700 text-white flex flex-col p-6">
 
 
 
 
 
-      <header className="text-center mt-4 mb-6">
+
+      <header className="
+        text-center
+        mt-4
+        mb-6
+      ">
 
 
-        <h1 className="text-4xl font-bold">
+        <h1 className="
+          text-4xl
+          font-bold
+        ">
 
           🌳 Patrouille Parcs
 
@@ -191,19 +426,23 @@ function App() {
       <button
 
         onClick={()=>
-          setModePatrouille(!modePatrouille)
+
+          setModePatrouille(
+            !modePatrouille
+          )
+
         }
+
 
         className="
           bg-white
           text-green-700
           font-bold
-          px-6
+          text-xl
           py-4
           rounded-2xl
           shadow-xl
           mb-6
-          text-xl
         "
 
       >
@@ -229,31 +468,31 @@ function App() {
 
 
 
+
+
       {modePatrouille && (
+
 
         <PatrolMode
 
 
-          parcSuivant={
-            prochainParc || null
-          }
+          parcSuivant={prochainParc}
 
 
-          distance={null}
+          distance={distanceProchain}
 
 
-          duree={null}
+          duree={dureeProchain}
 
 
-
-          onFermer={
-            fermerProchainParc
-          }
+          onFermer={fermerProchainParc}
 
 
         />
 
+
       )}
+
 
 
 
@@ -268,23 +507,36 @@ function App() {
         <>
 
 
-          <section className="w-full bg-white rounded-2xl overflow-hidden shadow-xl">
+          <section className="
+            w-full
+            bg-white
+            rounded-2xl
+            overflow-hidden
+            shadow-xl
+          ">
 
 
             <MapView
 
+
               parcs={listeParcs}
+
 
               setParcs={setListeParcs}
 
+
               positionAgent={positionAgent}
 
+
               setPositionAgent={setPositionAgent}
+
 
             />
 
 
           </section>
+
+
 
 
 
@@ -306,6 +558,7 @@ function App() {
 
 
 
+
           <Tournee
 
             parcs={listeParcs}
@@ -320,32 +573,39 @@ function App() {
 
 
 
-          <main className="w-full mt-6">
 
 
-            <div className="bg-white text-green-800 rounded-2xl p-6 shadow-xl text-center">
+          <div className="
+            bg-white
+            text-green-800
+            rounded-2xl
+            p-6
+            shadow-xl
+            text-center
+            mt-6
+          ">
 
 
-              <p className="text-lg">
+            <p className="text-lg">
 
-                Parcs à fermer
+              Parcs à fermer
 
-              </p>
-
-
-
-              <p className="text-6xl font-bold mt-2">
-
-                {nombreParcs}
-
-              </p>
-
-
-            </div>
+            </p>
 
 
 
-          </main>
+            <p className="
+              text-6xl
+              font-bold
+              mt-2
+            ">
+
+              {nombreParcs}
+
+            </p>
+
+
+          </div>
 
 
 
@@ -361,7 +621,11 @@ function App() {
 
 
 
-      <footer className="mt-8 text-center">
+
+      <footer className="
+        mt-8
+        text-center
+      ">
 
 
         <p>
@@ -371,7 +635,11 @@ function App() {
         </p>
 
 
-        <p className="text-sm opacity-80">
+
+        <p className="
+          text-sm
+          opacity-80
+        ">
 
           Rue des Églantiers
 
@@ -384,13 +652,14 @@ function App() {
 
 
 
-
     </div>
-
 
   );
 
+
 }
+
+
 
 
 
