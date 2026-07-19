@@ -6,10 +6,40 @@ import { tourneeInitiale } from "./data/tournee";
 import MapView from "./components/Map/MapView";
 import NextStop from "./components/Route/NextStop";
 import Tournee from "./components/Route/Tournee";
+import { calculerItineraire } from "./services/routing";
 
 
 
 function App() {
+  
+    console.log(import.meta.env.VITE_ORS_API_KEY);
+    useEffect(() => {
+
+  calculerItineraire(
+
+    [
+      43.644969,
+      3.910237
+    ],
+
+    [
+      43.630154,
+      3.907396
+    ]
+
+  )
+  .then((resultat)=>{
+
+    console.log(
+      "ITINERAIRE",
+      resultat
+    );
+
+  })
+  .catch(console.error);
+
+
+}, []);
 
 
   const [listeParcs, setListeParcs] = useState(() => {

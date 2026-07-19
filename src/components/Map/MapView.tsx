@@ -7,7 +7,7 @@ import {
 
 import "leaflet/dist/leaflet.css";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import L from "leaflet";
 
@@ -15,7 +15,7 @@ import PositionMarker from "./PositionMarker";
 import RouteLine from "./RouteLine";
 
 import { pc } from "../../data/pc";
-
+import { calculerItineraire } from "../../services/routing";
 
 
 type Parc = {
@@ -56,14 +56,17 @@ type Props = {
 function MapView({
 
   parcs,
-
   setParcs,
-
   positionAgent,
-
   setPositionAgent
 
 }: Props) {
+
+
+  const [itineraire, setItineraire] =
+    useState<[number, number][]>([]);
+
+
 
 
 
@@ -89,6 +92,93 @@ function MapView({
 
 
   }, []);
+
+
+
+
+
+  // Calcul de la vraie route
+  useEffect(() => {
+
+
+    async function chargerRoute() {
+
+
+      if (!positionAgent) {
+        return;
+      }
+
+
+
+      const prochainParc =
+        parcs.find(
+          (parc)=> !parc.ferme
+        );
+
+
+
+      if (!prochainParc) {
+
+        setItineraire([]);
+
+        return;
+
+      }
+
+
+
+      try {
+
+
+        const resultat =
+          await calculerItineraire(
+
+            positionAgent,
+
+            [
+              prochainParc.latitude,
+              prochainParc.longitude
+            ]
+
+          );
+
+
+
+        setItineraire(
+          resultat.geometrie
+        );
+
+
+        console.log(
+          "Route réelle",
+          resultat
+        );
+
+
+      }
+
+      catch(error){
+
+        console.error(
+          "Erreur itinéraire",
+          error
+        );
+
+      }
+
+
+    }
+
+
+    chargerRoute();
+
+
+  }, [
+    positionAgent,
+    parcs
+  ]);
+
+
 
 
 
@@ -140,6 +230,8 @@ function MapView({
 
 
 
+
+
   return (
 
     <MapContainer
@@ -167,6 +259,7 @@ function MapView({
 
 
 
+
       <PositionMarker
 
         positionAgent={positionAgent}
@@ -174,6 +267,9 @@ function MapView({
         setPositionAgent={setPositionAgent}
 
       />
+
+
+
 
 
 
@@ -228,15 +324,14 @@ function MapView({
 
 
             {parc.ferme &&
-              parc.heureFermeture && (
+            parc.heureFermeture && (
 
               <p>
-
                 🕒 {parc.heureFermeture}
-
               </p>
 
             )}
+
 
 
 
@@ -268,6 +363,10 @@ function MapView({
 
 
 
+
+
+
+
       <Marker
 
         position={[
@@ -290,13 +389,13 @@ function MapView({
 
 
 
+
       <RouteLine
 
-        parcs={parcs}
-
-        positionAgent={positionAgent}
+        points={itineraire}
 
       />
+
 
 
     </MapContainer>
