@@ -1,5 +1,6 @@
 import {
-  useEffect
+  useEffect,
+  useRef
 } from "react";
 
 import {
@@ -10,6 +11,7 @@ import {
 interface Props {
 
   positionAgent:
+
     [number, number] | null;
 
 }
@@ -28,12 +30,20 @@ function MapCenter({
   const map = useMap();
 
 
+  const premierFix = useRef(true);
+
+
+
 
 
   useEffect(()=>{
 
 
-    if(!positionAgent){
+    if(
+
+      !positionAgent
+
+    ){
 
       return;
 
@@ -41,21 +51,39 @@ function MapCenter({
 
 
 
-    map.flyTo(
 
-      positionAgent,
 
-      map.getZoom(),
+    if(
 
-      {
+      premierFix.current
 
-        animate:true,
+    ){
 
-        duration:1
 
-      }
 
-    );
+      map.flyTo(
+
+        positionAgent,
+
+        map.getZoom(),
+
+        {
+
+          animate:true,
+
+          duration:1
+
+        }
+
+      );
+
+
+
+      premierFix.current = false;
+
+
+
+    }
 
 
 
@@ -70,9 +98,13 @@ function MapCenter({
 
 
 
+
   return null;
 
+
 }
+
+
 
 
 

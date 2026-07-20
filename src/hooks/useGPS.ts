@@ -4,21 +4,35 @@ import {
 } from "react";
 
 
+
+
+
 export interface GPSPosition {
+
 
   latitude:number;
 
+
   longitude:number;
+
 
   precision:number;
 
+
   vitesse:number | null;
+
 
   cap:number | null;
 
+
   heure:number;
 
+
 }
+
+
+
+
 
 
 
@@ -27,15 +41,31 @@ export interface GPSPosition {
 export function useGPS(){
 
 
-  const [position,setPosition] =
-
-    useState<GPSPosition | null>(null);
 
 
 
-  const [erreur,setErreur] =
+  const [
 
-    useState<string | null>(null);
+    position,
+
+    setPosition
+
+  ] = useState<GPSPosition | null>(null);
+
+
+
+
+
+  const [
+
+    erreur,
+
+    setErreur
+
+  ] = useState<string | null>(null);
+
+
+
 
 
 
@@ -45,12 +75,37 @@ export function useGPS(){
   useEffect(()=>{
 
 
+
+    console.log(
+
+      "🚀 Démarrage GPS"
+
+    );
+
+
+
+
+
+
+
     if(!navigator.geolocation){
 
 
+
       setErreur(
-        "GPS non disponible"
+
+        "GPS non disponible sur cet appareil"
+
       );
+
+
+
+      console.error(
+
+        "❌ navigator.geolocation absent"
+
+      );
+
 
 
       return;
@@ -62,12 +117,21 @@ export function useGPS(){
 
 
 
+
+
+
     const watcher =
 
       navigator.geolocation.watchPosition(
 
 
+
+
+
         (data)=>{
+
+
+
 
 
           const precision =
@@ -78,18 +142,53 @@ export function useGPS(){
 
 
 
-          /*
-            On ignore les positions
-            trop imprécises
-          */
+
+
+          console.log(
+
+            "📡 Position reçue",
+
+            {
+
+              latitude:
+
+                data.coords.latitude,
+
+
+              longitude:
+
+                data.coords.longitude,
+
+
+              precision
+
+            }
+
+          );
+
+
+
+
+
+
+
+
 
           if(precision > 80){
 
-            console.log(
-              "GPS ignoré précision",
+
+
+            console.warn(
+
+              "⚠️ Position ignorée précision",
+
               precision,
+
               "m"
+
             );
+
+
 
             return;
 
@@ -100,12 +199,18 @@ export function useGPS(){
 
 
 
+
+
+
           setPosition({
+
 
 
             latitude:
 
               data.coords.latitude,
+
+
 
 
 
@@ -115,19 +220,27 @@ export function useGPS(){
 
 
 
+
+
             precision,
+
+
 
 
 
             vitesse:
 
-              data.coords.speed,
+              data.coords.speed ?? null,
+
+
 
 
 
             cap:
 
-              data.coords.heading,
+              data.coords.heading ?? null,
+
+
 
 
 
@@ -136,7 +249,12 @@ export function useGPS(){
               Date.now()
 
 
+
           });
+
+
+
+
 
 
 
@@ -144,22 +262,11 @@ export function useGPS(){
 
 
 
-          console.log(
-
-            "📍 GPS",
-
-            data.coords.latitude,
-
-            data.coords.longitude,
-
-            "precision",
-
-            precision
-
-          );
 
 
         },
+
+
 
 
 
@@ -168,20 +275,93 @@ export function useGPS(){
         (error)=>{
 
 
+
+
+
           console.error(
 
-            "Erreur GPS",
+            "❌ Erreur GPS",
 
-            error.message
+            {
+
+              code:error.code,
+
+              message:error.message
+
+            }
 
           );
 
 
-          setErreur(
 
-            error.message
 
-          );
+
+
+
+          switch(error.code){
+
+
+
+            case 1:
+
+
+
+              setErreur(
+
+                "Autorisation GPS refusée"
+
+              );
+
+              break;
+
+
+
+
+
+            case 2:
+
+
+
+              setErreur(
+
+                "Position GPS indisponible"
+
+              );
+
+              break;
+
+
+
+
+
+            case 3:
+
+
+
+              setErreur(
+
+                "Délai GPS dépassé"
+
+              );
+
+              break;
+
+
+
+
+
+            default:
+
+
+
+              setErreur(
+
+                "Erreur GPS inconnue"
+
+              );
+
+          }
+
 
 
         },
@@ -190,22 +370,31 @@ export function useGPS(){
 
 
 
+
+
         {
+
 
 
           enableHighAccuracy:true,
 
 
+
           timeout:15000,
+
 
 
           maximumAge:2000
 
 
+
         }
 
 
+
       );
+
+
 
 
 
@@ -216,6 +405,19 @@ export function useGPS(){
     return ()=>{
 
 
+
+
+
+      console.log(
+
+        "🛑 Arrêt GPS"
+
+      );
+
+
+
+
+
       navigator.geolocation.clearWatch(
 
         watcher
@@ -223,7 +425,11 @@ export function useGPS(){
       );
 
 
+
     };
+
+
+
 
 
 
@@ -235,15 +441,23 @@ export function useGPS(){
 
 
 
+
+
+
   return {
+
 
 
     position,
 
+
+
     erreur
 
 
+
   };
+
 
 
 }

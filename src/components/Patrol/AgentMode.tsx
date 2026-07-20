@@ -1,19 +1,46 @@
-import type { Parc } from "../../types/Parc";
+import type {
+  Parc
+} from "../../types/Parc";
+
+
+
 
 
 interface Props {
 
-  parcSuivant: Parc | null;
 
-  distance: number | null;
+  parcSuivant:
 
-  duree: number | null;
+    Parc | null;
 
-  onFermer: () => void;
 
-  onNaviguer: () => void;
+  distance:
+
+    number | null;
+
+
+  duree:
+
+    number | null;
+
+
+  onFermer:
+
+    ()=>void;
+
+
+  onNaviguer:
+
+    ()=>void;
+
 
 }
+
+
+
+
+
+
 
 
 
@@ -27,42 +54,48 @@ function AgentMode({
 
   onFermer,
 
-  onNaviguer,
+  onNaviguer
 
-}: Props) {
+}:Props){
 
 
 
-  if (!parcSuivant) {
+
+
+  if(!parcSuivant){
+
 
     return (
 
       <div
 
         className="
-          min-h-screen
-          bg-green-700
-          text-white
-          flex
-          items-center
-          justify-center
+          bg-white
+          text-green-800
+          rounded-3xl
+          p-8
+          shadow-xl
           text-center
-          p-6
         "
 
       >
 
-        <h1 className="text-4xl font-bold">
+        <h2 className="text-3xl font-bold">
 
-          ✅ Tournée terminée
+          ✅ Patrouille terminée
 
-        </h1>
+        </h2>
+
 
       </div>
 
     );
 
+
   }
+
+
+
 
 
 
@@ -73,30 +106,53 @@ function AgentMode({
     <div
 
       className="
-        min-h-screen
-        bg-green-700
-        text-white
-        p-6
+        bg-white
+        text-green-800
+        rounded-3xl
+        p-8
+        shadow-xl
+        mt-6
+        text-center
       "
 
     >
 
 
 
-      <h1
+
+
+      <h2
 
         className="
-          text-4xl
+          text-3xl
           font-bold
-          text-center
-          mb-10
         "
 
       >
 
-        🚓 MODE TERRAIN
+        🚓 Prochain parc
 
-      </h1>
+      </h2>
+
+
+
+
+
+
+
+      <p
+
+        className="
+          text-2xl
+          mt-6
+          font-bold
+        "
+
+      >
+
+        🌳 {parcSuivant.nom}
+
+      </p>
 
 
 
@@ -107,101 +163,50 @@ function AgentMode({
       <div
 
         className="
-          bg-white
-          text-green-800
-          rounded-3xl
-          shadow-xl
-          p-8
-          text-center
+          mt-6
+          text-xl
         "
 
       >
 
+        📍
+
+        {
+
+          distance !== null
+
+          ?
+
+          `${distance.toFixed(2)} km`
+
+          :
+
+          "Calcul..."
+
+        }
 
 
-        <p className="text-xl">
-
-          Prochain parc
-
-        </p>
+        <br/>
 
 
+        🚗
 
+        {
 
+          duree !== null
 
-        <h2
+          ?
 
-          className="
-            text-4xl
-            font-bold
-            mt-5
-          "
+          `${Math.round(duree)} min`
 
-        >
+          :
 
-          🌳 {parcSuivant.nom}
+          "Calcul..."
 
-        </h2>
-
-
-
-
-
-        <p className="mt-5 text-xl">
-
-          📍 {parcSuivant.adresse}
-
-        </p>
-
-
-
-
-
-
-
-        {distance !== null && (
-
-          <p
-
-            className="
-              text-3xl
-              mt-8
-            "
-
-          >
-
-            📏 {distance < 1
-
-              ? `${Math.round(distance * 1000)} m`
-
-              : `${distance.toFixed(1)} km`
-
-            }
-
-          </p>
-
-        )}
-
-
-
-
-
-
-
-        {duree !== null && (
-
-          <p className="text-3xl">
-
-            ⏱ {Math.round(duree)} min
-
-          </p>
-
-        )}
-
+        }
 
 
       </div>
-
 
 
 
@@ -215,22 +220,22 @@ function AgentMode({
         onClick={onNaviguer}
 
         className="
-          mt-10
           w-full
-          bg-white
-          text-green-700
-          text-3xl
+          mt-8
+          bg-blue-600
+          text-white
+          p-4
+          rounded-2xl
+          text-xl
           font-bold
-          py-8
-          rounded-3xl
-          shadow-xl
         "
 
       >
 
-        🧭 NAVIGUER
+        🧭 Naviguer
 
       </button>
+
 
 
 
@@ -243,22 +248,23 @@ function AgentMode({
         onClick={onFermer}
 
         className="
-          mt-6
           w-full
-          bg-green-500
+          mt-4
+          bg-green-700
           text-white
-          text-3xl
+          p-4
+          rounded-2xl
+          text-xl
           font-bold
-          py-8
-          rounded-3xl
-          shadow-xl
         "
 
       >
 
-        ✅ PARC FERMÉ
+        🔒 Fermer le parc
 
       </button>
+
+
 
 
 
@@ -267,6 +273,8 @@ function AgentMode({
   );
 
 }
+
+
 
 
 

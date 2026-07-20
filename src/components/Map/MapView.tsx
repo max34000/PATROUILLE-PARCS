@@ -1,22 +1,31 @@
 import {
   MapContainer,
-  TileLayer
+  TileLayer,
+  Marker,
+  Popup
 } from "react-leaflet";
 
-import {
-  useEffect
-} from "react";
 
 import type {
   Dispatch,
   SetStateAction
 } from "react";
 
+
+import L from "leaflet";
+
+
 import "leaflet/dist/leaflet.css";
+
 
 import type {
   Parc
 } from "../../types/Parc";
+
+
+import {
+  pc
+} from "../../data/pc";
 
 
 import PositionMarker from "./PositionMarker";
@@ -27,9 +36,25 @@ import RouteLine from "./RouteLine";
 
 import GPSTrace from "./GPSTrace";
 
-import ParkMarkers from "./ParkMarkers";
 
-import PCMarker from "./PCMarker";
+
+
+
+L.Icon.Default.mergeOptions({
+
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"
+
+});
+
+
+
 
 
 
@@ -53,13 +78,19 @@ interface Props {
 
   positionAgent:
 
-    [number, number] | null;
+    [number,number] | null;
 
 
 
   traceGPS:
 
-    [number, number][];
+    [number,number][];
+
+
+
+  route:
+
+    [number,number][];
 
 
 
@@ -82,6 +113,8 @@ interface Props {
 
 
 
+
+
 function MapView({
 
   parcs,
@@ -90,11 +123,13 @@ function MapView({
 
   traceGPS,
 
+  route,
+
   retourPC,
 
   onFermerParc
 
-}: Props) {
+}:Props){
 
 
 
@@ -118,33 +153,18 @@ function MapView({
 
 
 
-  useEffect(()=>{
-
-
-    console.log(
-      "🗺️ Carte chargée"
-    );
-
-
-  },[]);
-
-
-
-
-
-
 
   return (
 
     <div
 
       className="
-        w-full
-        h-[500px]
-        rounded-3xl
-        overflow-hidden
-        shadow-xl
-        mt-6
+      w-full
+      h-[550px]
+      rounded-3xl
+      overflow-hidden
+      shadow-xl
+      mt-6
       "
 
     >
@@ -158,9 +178,7 @@ function MapView({
 
         center={
 
-          positionAgent
-
-          ||
+          positionAgent ||
 
           centreInitial
 
@@ -185,7 +203,6 @@ function MapView({
 
 
 
-
         <TileLayer
 
 
@@ -202,22 +219,16 @@ function MapView({
 
 
 
-        {/* Marqueurs des parcs */}
 
-        <ParkMarkers
+        {positionAgent && (
 
-          parcs={parcs}
+          <MapCenter
 
-        />
+            positionAgent={positionAgent}
 
+          />
 
-
-
-
-
-        {/* PC Papa Charlie */}
-
-        <PCMarker />
+        )}
 
 
 
@@ -225,21 +236,6 @@ function MapView({
 
 
 
-        {/* Centrage automatique GPS */}
-
-        <MapCenter
-
-          positionAgent={positionAgent}
-
-        />
-
-
-
-
-
-
-
-        {/* Position agent */}
 
         <PositionMarker
 
@@ -253,7 +249,6 @@ function MapView({
 
 
 
-        {/* Trace du déplacement */}
 
         <GPSTrace
 
@@ -267,46 +262,16 @@ function MapView({
 
 
 
-        {/* Route retour PC */}
 
-        {retourPC && (
-
+        {route.length > 0 && (
 
           <RouteLine
 
+            points={route}
 
-            points={
-
-              positionAgent
-
-              ?
-
-              [
-
-                positionAgent,
-
-                [
-
-                  43.644969,
-
-                  3.910237
-
-                ]
-
-              ]
-
-              :
-
-              []
-
-            }
-
-
-            color="green"
-
+            color="blue"
 
           />
-
 
         )}
 
@@ -314,7 +279,33 @@ function MapView({
 
 
 
-      </MapContainer>
+
+
+
+
+        {retourPC && positionAgent && (
+
+          <RouteLine
+
+            points={[
+
+              positionAgent,
+
+              [
+
+                pc.latitude,
+
+                pc.longitude
+
+              ]
+
+            ]}
+
+            color="green"
+
+          />
+
+        )}
 
 
 
@@ -323,33 +314,38 @@ function MapView({
 
 
 
-      <div
 
-        className="
-          bg-white
-          text-green-800
-          rounded-2xl
-          p-4
-          mt-4
-          shadow-xl
-        "
+        <Marker
 
-      >
+          position={[
 
+            pc.latitude,
 
+            pc.longitude
 
-        <h2
-
-          className="
-            font-bold
-            text-xl
-          "
+          ]}
 
         >
 
-          🌳 Parcs
+          <Popup>
 
-        </h2>
+            🏁
+
+            <br/>
+
+            {pc.nom}
+
+            <br/>
+
+            {pc.adresse}
+
+          </Popup>
+
+
+        </Marker>
+
+
+
 
 
 
@@ -359,90 +355,88 @@ function MapView({
         {parcs.map((parc)=>(
 
 
-          <div
+          <Marker
+
 
             key={parc.id}
 
-            className="
-              flex
-              justify-between
-              items-center
-              border-b
-              py-2
-            "
+
+            position={[
+
+              parc.latitude,
+
+              parc.longitude
+
+            ]}
+
 
           >
 
+            <Popup>
 
 
-            <span>
+              🌳
+
+              <br/>
+
+              <b>
+
+                {parc.nom}
+
+              </b>
 
 
-              {parc.ferme
+              <br/>
+
+
+              {
+
+                parc.ferme
 
                 ?
 
-                "🔒"
+                "🔒 Fermé"
 
                 :
 
-                "🌳"
+                "Ouvert"
 
               }
 
-              {" "}
-
-              {parc.nom}
-
-
-            </span>
 
 
 
 
+              {!parc.ferme && (
+
+                <button
+
+                  onClick={()=>
 
 
-            {!parc.ferme && (
+                    onFermerParc(
+
+                      parc.id
+
+                    )
 
 
-              <button
+                  }
 
+                >
 
-                onClick={()=>
+                  Fermer
 
+                </button>
 
-                  onFermerParc(
-
-                    parc.id
-
-                  )
-
-
-                }
-
-
-                className="
-                  bg-green-700
-                  text-white
-                  px-3
-                  py-1
-                  rounded-xl
-                "
-
-
-              >
-
-                Fermer
-
-
-              </button>
-
-
-            )}
+              )}
 
 
 
-          </div>
+            </Popup>
+
+
+          </Marker>
 
 
         ))}
@@ -451,10 +445,8 @@ function MapView({
 
 
 
-      </div>
 
-
-
+      </MapContainer>
 
 
     </div>
@@ -462,6 +454,8 @@ function MapView({
   );
 
 }
+
+
 
 
 
