@@ -15,163 +15,269 @@ import Progression from "./components/Patrol/Progression";
 import Historique from "./components/Patrol/Historique";
 import RetourPC from "./components/Patrol/RetourPC";
 
-import { calculerItineraire } from "./services/routing";
 
-import { trouverParcLePlusProche } from "./utils/nextPark";
-
-import { sauvegarderHistorique } from "./utils/historique";
-
-import { ouvrirNavigation } from "./utils/navigation";
+import { calculerItineraire }
+from "./services/routing";
 
 
-
-function App() {
-
-
-  const [listeParcs, setListeParcs] = useState<Parc[]>(() => {
-
-    const sauvegarde =
-      localStorage.getItem(
-        "patrouille-parcs"
-      );
+import { trouverParcLePlusProche }
+from "./utils/nextPark";
 
 
-    return sauvegarde
-      ? JSON.parse(sauvegarde)
-      : parcs;
+import { sauvegarderHistorique }
+from "./utils/historique";
 
-  });
+
+import { ouvrirNavigation }
+from "./utils/navigation";
+
+
+import { useGPS }
+from "./hooks/useGPS";
 
 
 
-  const [positionAgent, setPositionAgent] =
-    useState<[number, number] | null>(null);
+
+
+function App(){
 
 
 
-  const [modePatrouille, setModePatrouille] =
+  const { position } = useGPS();
+
+
+const positionAgent: [number, number] | null =
+  position
+    ? [
+        position.latitude,
+        position.longitude
+      ]
+    : null;
+
+
+
+
+
+
+
+  const [listeParcs,setListeParcs] =
+
+    useState<Parc[]>(()=>{
+
+
+      const sauvegarde =
+
+        localStorage.getItem(
+          "patrouille-parcs"
+        );
+
+
+      return sauvegarde
+
+        ?
+
+        JSON.parse(sauvegarde)
+
+        :
+
+        parcs;
+
+
+    });
+
+
+
+
+
+
+
+  const [modePatrouille,setModePatrouille] =
+
     useState(false);
 
 
 
-  const [modeTerrain, setModeTerrain] =
+  const [modeTerrain,setModeTerrain] =
+
     useState(false);
 
 
 
-  const [retourPC, setRetourPC] =
+  const [retourPC,setRetourPC] =
+
     useState(false);
 
 
 
-  const [distanceProchain, setDistanceProchain] =
-    useState<number | null>(null);
+
+  const [distanceProchain,setDistanceProchain] =
+
+    useState<number|null>(null);
 
 
 
-  const [dureeProchain, setDureeProchain] =
-    useState<number | null>(null);
+  const [dureeProchain,setDureeProchain] =
+
+    useState<number|null>(null);
 
 
 
 
 
-  useEffect(() => {
+
+
+
+
+  useEffect(()=>{
+
 
     localStorage.setItem(
+
       "patrouille-parcs",
+
       JSON.stringify(listeParcs)
+
     );
 
-  }, [listeParcs]);
+
+  },[listeParcs]);
+
+
+
+
 
 
 
 
 
   const prochainParc =
+
+
     positionAgent
 
-      ?
 
-      trouverParcLePlusProche(
-        positionAgent,
-        listeParcs
-      )
-
-      :
-
-      listeParcs.find(
-        (parc) => !parc.ferme
-      )
-
-      ||
-
-      null;
+    ?
 
 
+    trouverParcLePlusProche(
+
+      positionAgent,
+
+      listeParcs
+
+    )
+
+
+    :
+
+
+    listeParcs.find(
+
+      p=>!p.ferme
+
+    )
+
+    ||
+
+    null;
 
 
 
-  useEffect(() => {
 
 
-    async function chargerRoute() {
 
 
-      if (
+
+
+  useEffect(()=>{
+
+
+
+    async function chargerRoute(){
+
+
+      if(
+
         !positionAgent ||
+
         !prochainParc
-      ) {
+
+      ){
 
         return;
 
       }
 
 
-      try {
+
+
+      try{
 
 
         const resultat =
+
           await calculerItineraire(
+
             positionAgent,
+
             [
+
               prochainParc.latitude,
+
               prochainParc.longitude
+
             ]
+
           );
 
 
+
         setDistanceProchain(
+
           resultat.distance
+
         );
+
 
 
         setDureeProchain(
+
           resultat.duree
+
         );
 
 
       }
 
-      catch (error) {
+
+      catch(error){
+
 
         console.error(
-          "Erreur calcul route",
+
           error
+
         );
+
 
       }
 
+
     }
+
+
 
 
     chargerRoute();
 
 
-  }, [
+
+  },[
+
     positionAgent,
+
     prochainParc
+
   ]);
 
 
@@ -180,15 +286,23 @@ function App() {
 
 
 
-  function fermerParc(id: string) {
 
 
-    const parc = listeParcs.find(
-      (p) => p.id === id
-    );
+  function fermerParc(id:string){
 
 
-    if (!parc || parc.ferme) {
+
+    const parc =
+
+      listeParcs.find(
+
+        p=>p.id===id
+
+      );
+
+
+
+    if(!parc){
 
       return;
 
@@ -197,15 +311,27 @@ function App() {
 
 
 
+
+
     const heure =
+
       new Date()
-        .toLocaleTimeString(
-          "fr-FR",
-          {
-            hour: "2-digit",
-            minute: "2-digit"
-          }
-        );
+
+      .toLocaleTimeString(
+
+        "fr-FR",
+
+        {
+
+          hour:"2-digit",
+
+          minute:"2-digit"
+
+        }
+
+      );
+
+
 
 
 
@@ -213,9 +339,9 @@ function App() {
 
     sauvegarderHistorique({
 
-      parcId: parc.id,
+      parcId:parc.id,
 
-      parcNom: parc.nom,
+      parcNom:parc.nom,
 
       heure
 
@@ -226,28 +352,33 @@ function App() {
 
 
 
-    setListeParcs((anciens) =>
 
-      anciens.map((p) =>
+    setListeParcs(anciens=>
 
-        p.id === id
 
-          ?
+      anciens.map(p=>
 
-          {
-            ...p,
+        p.id===id
 
-            ferme: true,
+        ?
 
-            heureFermeture: heure
+        {
 
-          }
+          ...p,
 
-          :
+          ferme:true,
 
-          p
+          heureFermeture:heure
+
+        }
+
+        :
+
+        p
+
 
       )
+
 
     );
 
@@ -256,26 +387,34 @@ function App() {
 
 
 
-    const restants = listeParcs.filter(
 
-      (p) =>
-        !p.ferme &&
-        p.id !== id
+    const restants =
 
-    ).length;
+      listeParcs.filter(
+
+        p=>
+
+          !p.ferme &&
+
+          p.id!==id
+
+      ).length;
 
 
 
 
 
-    if (restants === 0) {
+
+    if(restants===0){
 
 
-      setTimeout(() => {
+      setTimeout(()=>{
+
 
         setRetourPC(true);
 
-      }, 1000);
+
+      },1000);
 
 
     }
@@ -291,7 +430,12 @@ function App() {
 
 
 
+
+
+
+
   return (
+
 
     <div className="
       min-h-screen
@@ -301,14 +445,19 @@ function App() {
     ">
 
 
+
       <h1 className="
         text-4xl
         font-bold
         text-center
         mb-6
       ">
+
         🌳 Patrouille Parcs
+
       </h1>
+
+
 
 
 
@@ -321,76 +470,99 @@ function App() {
       ">
 
 
+
         <button
-          onClick={() => {
+
+          onClick={()=>{
 
             setModePatrouille(false);
 
             setModeTerrain(false);
 
           }}
+
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
+
         >
+
           🗺️ Carte
+
         </button>
 
 
 
 
 
+
+
         <button
-          onClick={() => {
+
+          onClick={()=>{
 
             setModePatrouille(true);
 
             setModeTerrain(false);
 
           }}
+
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
+
         >
+
           🚓 Patrouille
+
         </button>
+
+
 
 
 
 
 
         <button
-          onClick={() => {
+
+          onClick={()=>{
 
             setModeTerrain(true);
 
             setModePatrouille(false);
 
           }}
+
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
+
         >
+
           📱 Terrain
+
         </button>
 
 
+
       </div>
+
+
 
 
 
@@ -410,9 +582,13 @@ function App() {
 
 
 
+
+
       {!modePatrouille && !modeTerrain && (
 
+
         <>
+
 
           <MapView
 
@@ -422,13 +598,13 @@ function App() {
 
             positionAgent={positionAgent}
 
-            setPositionAgent={setPositionAgent}
-
             retourPC={retourPC}
 
             onFermerParc={fermerParc}
 
           />
+
+
 
 
 
@@ -442,6 +618,8 @@ function App() {
 
 
 
+
+
           <Tournee
 
             parcs={listeParcs}
@@ -450,9 +628,13 @@ function App() {
 
           />
 
+
         </>
 
+
       )}
+
+
 
 
 
@@ -462,41 +644,64 @@ function App() {
 
       {modeTerrain && (
 
+
         <AgentMode
+
 
           parcSuivant={prochainParc}
 
+
           distance={distanceProchain}
+
 
           duree={dureeProchain}
 
-          onFermer={() => {
 
-            if (prochainParc) {
+          onFermer={()=>{
+
+
+            if(prochainParc){
+
 
               fermerParc(
+
                 prochainParc.id
+
               );
+
 
             }
 
+
           }}
 
-          onNaviguer={() => {
 
-            if (prochainParc) {
+
+          onNaviguer={()=>{
+
+
+            if(prochainParc){
+
 
               ouvrirNavigation(
+
                 prochainParc
+
               );
+
 
             }
 
+
           }}
+
 
         />
 
+
       )}
+
+
 
 
 
@@ -506,62 +711,99 @@ function App() {
 
       {modePatrouille && (
 
+
         <>
+
 
           <Progression
 
+
             total={listeParcs.length}
 
+
             fermes={
+
               listeParcs.filter(
-                (p) => p.ferme
+
+                p=>p.ferme
+
               ).length
+
             }
 
+
           />
+
+
+
+
 
 
 
           <PatrolMode
 
+
             parcSuivant={prochainParc}
+
 
             distance={distanceProchain}
 
+
             duree={dureeProchain}
 
-            onFermer={() => {
 
-              if (prochainParc) {
+            onFermer={()=>{
+
+
+              if(prochainParc){
+
 
                 fermerParc(
+
                   prochainParc.id
+
                 );
+
 
               }
 
+
             }}
 
-            onNaviguer={() => {
+
+
+            onNaviguer={()=>{
+
 
               setModeTerrain(true);
 
               setModePatrouille(false);
 
+
             }}
+
 
           />
 
 
 
+
+
+
           <Historique />
 
+
         </>
+
 
       )}
 
 
+
+
+
     </div>
+
 
   );
 
