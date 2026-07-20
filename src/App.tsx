@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
 
 import { parcs } from "./data/parcs";
 
@@ -15,25 +18,25 @@ import Progression from "./components/Patrol/Progression";
 import Historique from "./components/Patrol/Historique";
 import RetourPC from "./components/Patrol/RetourPC";
 
+import {
+  calculerItineraire
+} from "./services/routing";
 
-import { calculerItineraire }
-from "./services/routing";
+import {
+  trouverParcLePlusProche
+} from "./utils/nextPark";
 
+import {
+  sauvegarderHistorique
+} from "./utils/historique";
 
-import { trouverParcLePlusProche }
-from "./utils/nextPark";
+import {
+  ouvrirNavigation
+} from "./utils/navigation";
 
-
-import { sauvegarderHistorique }
-from "./utils/historique";
-
-
-import { ouvrirNavigation }
-from "./utils/navigation";
-
-
-import { useGPS }
-from "./hooks/useGPS";
+import {
+  useGPS
+} from "./hooks/useGPS";
 
 
 
@@ -42,85 +45,99 @@ from "./hooks/useGPS";
 function App(){
 
 
+  const {
+    position
+  } = useGPS();
 
-  const { position } = useGPS();
 
 
-const positionAgent: [number, number] | null =
-  position
-    ? [
+
+
+  const positionAgent:
+    [number, number] | null =
+
+      position
+
+      ?
+
+      [
         position.latitude,
         position.longitude
       ]
-    : null;
+
+      :
+
+      null;
 
 
 
 
 
+  const [
+    listeParcs,
+    setListeParcs
+  ] = useState<Parc[]>(()=>{
 
 
-  const [listeParcs,setListeParcs] =
-
-    useState<Parc[]>(()=>{
-
-
-      const sauvegarde =
-
-        localStorage.getItem(
-          "patrouille-parcs"
-        );
+    const sauvegarde =
+      localStorage.getItem(
+        "patrouille-parcs"
+      );
 
 
-      return sauvegarde
+    return sauvegarde
 
-        ?
+      ?
 
-        JSON.parse(sauvegarde)
+      JSON.parse(sauvegarde)
 
-        :
+      :
 
-        parcs;
+      parcs;
 
 
-    });
-
+  });
 
 
 
 
 
-
-  const [modePatrouille,setModePatrouille] =
-
-    useState(false);
-
-
-
-  const [modeTerrain,setModeTerrain] =
-
-    useState(false);
+  const [
+    modePatrouille,
+    setModePatrouille
+  ] = useState(false);
 
 
 
-  const [retourPC,setRetourPC] =
-
-    useState(false);
-
-
-
-
-  const [distanceProchain,setDistanceProchain] =
-
-    useState<number|null>(null);
+  const [
+    modeTerrain,
+    setModeTerrain
+  ] = useState(false);
 
 
 
-  const [dureeProchain,setDureeProchain] =
+  const [
+    retourPC,
+    setRetourPC
+  ] = useState(false);
 
-    useState<number|null>(null);
 
 
+
+
+  const [
+    distanceProchain,
+    setDistanceProchain
+  ] = useState<number | null>(null);
+
+
+
+
+
+  const [
+    dureeProchain,
+    setDureeProchain
+  ] = useState<number | null>(null);
 
 
 
@@ -141,9 +158,6 @@ const positionAgent: [number, number] | null =
 
 
   },[listeParcs]);
-
-
-
 
 
 
@@ -173,7 +187,7 @@ const positionAgent: [number, number] | null =
 
     listeParcs.find(
 
-      p=>!p.ferme
+      (p)=>!p.ferme
 
     )
 
@@ -187,10 +201,7 @@ const positionAgent: [number, number] | null =
 
 
 
-
-
   useEffect(()=>{
-
 
 
     async function chargerRoute(){
@@ -255,6 +266,8 @@ const positionAgent: [number, number] | null =
 
         console.error(
 
+          "Erreur itinéraire",
+
           error
 
         );
@@ -279,35 +292,22 @@ const positionAgent: [number, number] | null =
     prochainParc
 
   ]);
+    function fermerParc(id:string){
+
+
+    const parc = listeParcs.find(
+
+      (p)=>p.id===id
+
+    );
 
 
 
-
-
-
-
-
-
-  function fermerParc(id:string){
-
-
-
-    const parc =
-
-      listeParcs.find(
-
-        p=>p.id===id
-
-      );
-
-
-
-    if(!parc){
+    if(!parc || parc.ferme){
 
       return;
 
     }
-
 
 
 
@@ -335,8 +335,6 @@ const positionAgent: [number, number] | null =
 
 
 
-
-
     sauvegarderHistorique({
 
       parcId:parc.id,
@@ -353,14 +351,17 @@ const positionAgent: [number, number] | null =
 
 
 
-    setListeParcs(anciens=>
+    setListeParcs((anciens)=>
 
 
-      anciens.map(p=>
+      anciens.map((p)=>
+
 
         p.id===id
 
+
         ?
+
 
         {
 
@@ -372,7 +373,9 @@ const positionAgent: [number, number] | null =
 
         }
 
+
         :
+
 
         p
 
@@ -387,19 +390,17 @@ const positionAgent: [number, number] | null =
 
 
 
-
     const restants =
 
       listeParcs.filter(
 
-        p=>
+        (p)=>
 
           !p.ferme &&
 
           p.id!==id
 
       ).length;
-
 
 
 
@@ -430,10 +431,6 @@ const positionAgent: [number, number] | null =
 
 
 
-
-
-
-
   return (
 
 
@@ -443,6 +440,7 @@ const positionAgent: [number, number] | null =
       text-white
       p-6
     ">
+
 
 
 
@@ -482,12 +480,12 @@ const positionAgent: [number, number] | null =
           }}
 
           className="
-          bg-white
-          text-green-700
-          rounded-2xl
-          p-4
-          flex-1
-          font-bold
+            bg-white
+            text-green-700
+            rounded-2xl
+            p-4
+            flex-1
+            font-bold
           "
 
         >
@@ -513,12 +511,12 @@ const positionAgent: [number, number] | null =
           }}
 
           className="
-          bg-white
-          text-green-700
-          rounded-2xl
-          p-4
-          flex-1
-          font-bold
+            bg-white
+            text-green-700
+            rounded-2xl
+            p-4
+            flex-1
+            font-bold
           "
 
         >
@@ -544,12 +542,12 @@ const positionAgent: [number, number] | null =
           }}
 
           className="
-          bg-white
-          text-green-700
-          rounded-2xl
-          p-4
-          flex-1
-          font-bold
+            bg-white
+            text-green-700
+            rounded-2xl
+            p-4
+            flex-1
+            font-bold
           "
 
         >
@@ -561,8 +559,6 @@ const positionAgent: [number, number] | null =
 
 
       </div>
-
-
 
 
 
@@ -582,10 +578,7 @@ const positionAgent: [number, number] | null =
 
 
 
-
-
       {!modePatrouille && !modeTerrain && (
-
 
         <>
 
@@ -631,10 +624,7 @@ const positionAgent: [number, number] | null =
 
         </>
 
-
       )}
-
-
 
 
 
@@ -707,33 +697,26 @@ const positionAgent: [number, number] | null =
 
 
 
-
-
       {modePatrouille && (
-
 
         <>
 
 
           <Progression
 
-
             total={listeParcs.length}
-
 
             fermes={
 
               listeParcs.filter(
 
-                p=>p.ferme
+                (p)=>p.ferme
 
               ).length
 
             }
 
-
           />
-
 
 
 

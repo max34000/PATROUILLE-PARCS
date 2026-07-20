@@ -1,4 +1,6 @@
-import { useEffect } from "react";
+import {
+  useEffect
+} from "react";
 
 import {
   useMap
@@ -6,14 +8,19 @@ import {
 
 
 
+
 interface Props {
 
-  position:
-    [number, number] | null;
+
+  positionAgent:
+
+    [number,number] | null;
 
 
   destination:
-    [number, number] | null;
+
+    [number,number] | null;
+
 
 }
 
@@ -21,13 +28,15 @@ interface Props {
 
 
 
+
 function MapCenter({
 
-  position,
+  positionAgent,
 
   destination
 
-}: Props) {
+}:Props){
+
 
 
   const map = useMap();
@@ -36,70 +45,22 @@ function MapCenter({
 
 
 
-  useEffect(() => {
+
+  useEffect(()=>{
 
 
-    if (!position) {
-
-      return;
-
-    }
+    if(positionAgent){
 
 
+      map.setView(
 
+        positionAgent,
 
-
-    if (destination) {
-
-
-      const bounds = [
-
-        position,
-
-        destination
-
-      ] as [
-
-        [number, number],
-
-        [number, number]
-
-      ];
-
-
-
-
-
-      map.fitBounds(
-
-        bounds,
+        map.getZoom(),
 
         {
 
-          padding: [
-            50,
-            50
-          ]
-
-        }
-
-      );
-
-
-    }
-
-    else {
-
-
-      map.flyTo(
-
-        position,
-
-        15,
-
-        {
-
-          duration: 1
+          animate:true
 
         }
 
@@ -110,15 +71,16 @@ function MapCenter({
 
 
 
-  }, [
+  },[
 
-    position,
+    positionAgent,
 
     destination,
 
     map
 
   ]);
+
 
 
 

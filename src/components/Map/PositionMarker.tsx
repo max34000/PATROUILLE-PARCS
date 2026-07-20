@@ -10,6 +10,7 @@ import L from "leaflet";
 interface Props {
 
   positionAgent:
+
     [number, number] | null;
 
 }
@@ -25,26 +26,16 @@ const iconeAgent = L.icon({
     "https://cdn-icons-png.flaticon.com/512/684/684908.png",
 
 
-  iconSize:[
+  iconSize:
 
-    40,
-
-    40
-
-  ],
+    [40,40],
 
 
-  iconAnchor:[
+  iconAnchor:
 
-    20,
-
-    40
-
-  ]
-
+    [20,40]
 
 });
-
 
 
 
@@ -61,9 +52,7 @@ function PositionMarker({
 
   if(!positionAgent){
 
-
     return null;
-
 
   }
 
@@ -72,18 +61,13 @@ function PositionMarker({
 
 
 
-
   return (
-
 
     <Marker
 
-
       position={positionAgent}
 
-
       icon={iconeAgent}
-
 
     >
 
@@ -97,7 +81,7 @@ function PositionMarker({
         <br />
 
 
-        📍 GPS temps réel actif
+        📍 GPS temps réel
 
 
         <br />
@@ -120,16 +104,15 @@ function PositionMarker({
         {positionAgent[1].toFixed(6)}
 
 
+
       </Popup>
 
 
     </Marker>
 
-
   );
 
 }
-
 
 
 
