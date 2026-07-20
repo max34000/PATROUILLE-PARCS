@@ -50,6 +50,7 @@ import {
 function App(){
 
 
+
   const {
     position
   } = useGPS();
@@ -58,15 +59,19 @@ function App(){
 
 
 
-  const positionAgent: [number, number] | null =
+  const positionAgent:
+    [number, number] | null =
 
     position
 
       ?
 
       [
+
         position.latitude,
+
         position.longitude
+
       ]
 
       :
@@ -77,7 +82,67 @@ function App(){
 
 
 
-  
+  const [
+    traceGPS,
+    setTraceGPS
+  ] = useState<[number, number][]>([]);
+
+
+
+
+
+  useEffect(()=>{
+
+
+    if(!positionAgent){
+
+      return;
+
+    }
+
+
+
+    setTraceGPS((ancienne)=>{
+
+
+      const dernierPoint =
+        ancienne[
+          ancienne.length - 1
+        ];
+
+
+
+      if(
+
+        dernierPoint &&
+
+        dernierPoint[0] === positionAgent[0] &&
+
+        dernierPoint[1] === positionAgent[1]
+
+      ){
+
+        return ancienne;
+
+      }
+
+
+
+      return [
+
+        ...ancienne,
+
+        positionAgent
+
+      ].slice(-500);
+
+
+
+    });
+
+
+
+  },[positionAgent]);
 
 
 
@@ -136,11 +201,8 @@ function App(){
 
 
   const [
-    retourPC,
-    setRetourPC
-  ] = useState(false);
-
-
+  retourPC
+] = useState(false);
 
 
 
@@ -159,6 +221,13 @@ function App(){
     dureeProchain,
     setDureeProchain
   ] = useState<number | null>(null);
+
+
+
+
+
+
+
 
 
   useEffect(()=>{
@@ -180,14 +249,15 @@ function App(){
 
 
 
+
+
+
   const prochainParc =
 
 
     positionAgent
 
-
     ?
-
 
     trouverParcLePlusProche(
 
@@ -197,19 +267,19 @@ function App(){
 
     )
 
-
     :
-
 
     listeParcs.find(
 
-      (p)=>!p.ferme
+      p=>!p.ferme
 
     )
 
     ||
 
     null;
+
+
 
 
 
@@ -234,7 +304,6 @@ function App(){
         return;
 
       }
-
 
 
 
@@ -308,24 +377,33 @@ function App(){
     prochainParc
 
   ]);
-    function fermerParc(id:string){
-
-
-    const parc = listeParcs.find(
-
-      (p)=>p.id===id
-
-    );
 
 
 
-    if(!parc || parc.ferme){
+
+
+
+
+
+
+  function fermerParc(id:string){
+
+
+    const parc =
+
+      listeParcs.find(
+
+        p=>p.id===id
+
+      );
+
+
+
+    if(!parc){
 
       return;
 
     }
-
-
 
 
 
@@ -365,19 +443,14 @@ function App(){
 
 
 
-
-
     setListeParcs((anciens)=>
 
 
       anciens.map((p)=>
 
-
         p.id===id
 
-
         ?
-
 
         {
 
@@ -389,12 +462,9 @@ function App(){
 
         }
 
-
         :
 
-
         p
-
 
       )
 
@@ -403,38 +473,6 @@ function App(){
 
 
 
-
-
-
-    const restants =
-
-      listeParcs.filter(
-
-        (p)=>
-
-          !p.ferme &&
-
-          p.id!==id
-
-      ).length;
-
-
-
-
-
-    if(restants===0){
-
-
-      setTimeout(()=>{
-
-
-        setRetourPC(true);
-
-
-      },1000);
-
-
-    }
 
 
   }
@@ -449,15 +487,12 @@ function App(){
 
   return (
 
-
     <div className="
       min-h-screen
       bg-green-700
       text-white
       p-6
     ">
-
-
 
 
       <h1 className="
@@ -475,8 +510,6 @@ function App(){
 
 
 
-
-
       <div className="
         flex
         gap-3
@@ -484,9 +517,7 @@ function App(){
       ">
 
 
-
         <button
-
           onClick={()=>{
 
             setModePatrouille(false);
@@ -494,30 +525,21 @@ function App(){
             setModeTerrain(false);
 
           }}
-
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
-
         >
-
           🗺️ Carte
-
         </button>
 
 
 
-
-
-
-
         <button
-
           onClick={()=>{
 
             setModePatrouille(true);
@@ -525,30 +547,21 @@ function App(){
             setModeTerrain(false);
 
           }}
-
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
-
         >
-
           🚓 Patrouille
-
         </button>
 
 
 
-
-
-
-
         <button
-
           onClick={()=>{
 
             setModeTerrain(true);
@@ -556,27 +569,20 @@ function App(){
             setModePatrouille(false);
 
           }}
-
           className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
+          bg-white
+          text-green-700
+          rounded-2xl
+          p-4
+          flex-1
+          font-bold
           "
-
         >
-
           📱 Terrain
-
         </button>
 
 
-
       </div>
-
-
 
 
 
@@ -598,7 +604,6 @@ function App(){
 
         <>
 
-
           <MapView
 
             parcs={listeParcs}
@@ -607,13 +612,13 @@ function App(){
 
             positionAgent={positionAgent}
 
+            traceGPS={traceGPS}
+
             retourPC={retourPC}
 
             onFermerParc={fermerParc}
 
           />
-
-
 
 
 
@@ -624,8 +629,6 @@ function App(){
             positionAgent={positionAgent}
 
           />
-
-
 
 
 
@@ -647,66 +650,43 @@ function App(){
 
 
 
-
       {modeTerrain && (
-
 
         <AgentMode
 
-
           parcSuivant={prochainParc}
-
 
           distance={distanceProchain}
 
-
           duree={dureeProchain}
-
 
           onFermer={()=>{
 
-
             if(prochainParc){
 
-
               fermerParc(
-
                 prochainParc.id
-
               );
-
 
             }
 
-
           }}
-
-
 
           onNaviguer={()=>{
 
-
             if(prochainParc){
 
-
               ouvrirNavigation(
-
                 prochainParc
-
               );
-
 
             }
 
-
           }}
-
 
         />
 
-
       )}
-
 
 
 
@@ -717,75 +697,49 @@ function App(){
 
         <>
 
-
           <Progression
 
             total={listeParcs.length}
 
             fermes={
-
               listeParcs.filter(
-
-                (p)=>p.ferme
-
+                p=>p.ferme
               ).length
-
             }
 
           />
 
 
 
-
-
-
           <PatrolMode
-
 
             parcSuivant={prochainParc}
 
-
             distance={distanceProchain}
-
 
             duree={dureeProchain}
 
-
             onFermer={()=>{
-
 
               if(prochainParc){
 
-
                 fermerParc(
-
                   prochainParc.id
-
                 );
-
 
               }
 
-
             }}
 
-
-
             onNaviguer={()=>{
-
 
               setModeTerrain(true);
 
               setModePatrouille(false);
 
-
             }}
 
-
           />
-
-
-
 
 
 
@@ -794,15 +748,11 @@ function App(){
 
         </>
 
-
       )}
 
 
 
-
-
     </div>
-
 
   );
 

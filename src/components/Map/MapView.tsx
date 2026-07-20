@@ -18,11 +18,18 @@ import type {
   Parc
 } from "../../types/Parc";
 
+
 import PositionMarker from "./PositionMarker";
 
 import MapCenter from "./MapCenter";
 
 import RouteLine from "./RouteLine";
+
+import GPSTrace from "./GPSTrace";
+
+import ParkMarkers from "./ParkMarkers";
+
+import PCMarker from "./PCMarker";
 
 
 
@@ -50,6 +57,12 @@ interface Props {
 
 
 
+  traceGPS:
+
+    [number, number][];
+
+
+
   retourPC:
 
     boolean;
@@ -69,13 +82,13 @@ interface Props {
 
 
 
-
-
 function MapView({
 
   parcs,
 
   positionAgent,
+
+  traceGPS,
 
   retourPC,
 
@@ -85,9 +98,11 @@ function MapView({
 
 
 
+
+
   const centreInitial:
 
-    [number, number] =
+    [number,number] =
 
     [
 
@@ -96,6 +111,7 @@ function MapView({
       3.9025
 
     ];
+
 
 
 
@@ -135,6 +151,8 @@ function MapView({
 
 
 
+
+
       <MapContainer
 
 
@@ -167,6 +185,7 @@ function MapView({
 
 
 
+
         <TileLayer
 
 
@@ -182,6 +201,32 @@ function MapView({
 
 
 
+
+        {/* Marqueurs des parcs */}
+
+        <ParkMarkers
+
+          parcs={parcs}
+
+        />
+
+
+
+
+
+
+        {/* PC Papa Charlie */}
+
+        <PCMarker />
+
+
+
+
+
+
+
+        {/* Centrage automatique GPS */}
+
         <MapCenter
 
           positionAgent={positionAgent}
@@ -191,6 +236,10 @@ function MapView({
 
 
 
+
+
+
+        {/* Position agent */}
 
         <PositionMarker
 
@@ -202,6 +251,23 @@ function MapView({
 
 
 
+
+
+        {/* Trace du déplacement */}
+
+        <GPSTrace
+
+          points={traceGPS}
+
+        />
+
+
+
+
+
+
+
+        {/* Route retour PC */}
 
         {retourPC && (
 
@@ -219,7 +285,13 @@ function MapView({
 
                 positionAgent,
 
-                centreInitial
+                [
+
+                  43.644969,
+
+                  3.910237
+
+                ]
 
               ]
 
@@ -251,7 +323,6 @@ function MapView({
 
 
 
-
       <div
 
         className="
@@ -264,6 +335,7 @@ function MapView({
         "
 
       >
+
 
 
         <h2
@@ -284,9 +356,7 @@ function MapView({
 
 
 
-
         {parcs.map((parc)=>(
-
 
 
           <div
@@ -308,7 +378,17 @@ function MapView({
             <span>
 
 
-              {parc.ferme ? "🔒" : "🌳"}
+              {parc.ferme
+
+                ?
+
+                "🔒"
+
+                :
+
+                "🌳"
+
+              }
 
               {" "}
 
@@ -316,7 +396,6 @@ function MapView({
 
 
             </span>
-
 
 
 
@@ -370,6 +449,8 @@ function MapView({
 
 
 
+
+
       </div>
 
 
@@ -381,9 +462,6 @@ function MapView({
   );
 
 }
-
-
-
 
 
 
