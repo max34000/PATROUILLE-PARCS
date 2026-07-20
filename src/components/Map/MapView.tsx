@@ -1,6 +1,8 @@
 import {
   MapContainer,
-  TileLayer
+  TileLayer,
+  Marker,
+  Popup
 } from "react-leaflet";
 
 import {
@@ -12,6 +14,7 @@ import type {
   SetStateAction
 } from "react";
 
+import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
 
@@ -33,18 +36,11 @@ import RouteLine from "./RouteLine";
 
 interface Props {
 
-
   parcs: Parc[];
-
 
   setParcs:
 
-    Dispatch<
-
-      SetStateAction<Parc[]>
-
-    >;
-
+    Dispatch<SetStateAction<Parc[]>>;
 
 
   positionAgent:
@@ -52,21 +48,38 @@ interface Props {
     [number, number] | null;
 
 
-
   retourPC:
 
     boolean;
-
 
 
   onFermerParc:
 
     (id:string)=>void;
 
-
 }
 
 
+
+
+
+
+const iconeParc = L.icon({
+
+  iconUrl:
+    "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+
+  iconSize:[
+    32,
+    32
+  ],
+
+  iconAnchor:[
+    16,
+    32
+  ]
+
+});
 
 
 
@@ -84,17 +97,14 @@ function MapView({
 
   onFermerParc
 
-}: Props) {
+}:Props){
 
 
 
 
 
   const centreInitial:
-
-    [number,number] =
-
-    [
+    [number,number] = [
 
       43.6329,
 
@@ -106,18 +116,11 @@ function MapView({
 
 
 
-
-
-
   useEffect(()=>{
 
-
     console.log(
-
-      "🗺️ Carte chargée"
-
+      "🗺️ Carte GPS chargée"
     );
-
 
   },[]);
 
@@ -130,22 +133,13 @@ function MapView({
   return (
 
     <div className="
-
       w-full
-
       h-[500px]
-
       rounded-3xl
-
       overflow-hidden
-
       shadow-xl
-
       mt-6
-
     ">
-
-
 
 
 
@@ -153,13 +147,7 @@ function MapView({
 
 
         center={
-
-          positionAgent
-
-          ||
-
-          centreInitial
-
+          positionAgent || centreInitial
         }
 
 
@@ -180,19 +168,13 @@ function MapView({
 
 
 
-
-
         <TileLayer
-
 
           attribution="&copy; OpenStreetMap"
 
-
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 
-
         />
-
 
 
 
@@ -201,15 +183,11 @@ function MapView({
 
         <MapCenter
 
-
           positionAgent={positionAgent}
-
 
           destination={null}
 
-
         />
-
 
 
 
@@ -218,28 +196,121 @@ function MapView({
 
         <PositionMarker
 
-
           positionAgent={positionAgent}
 
-
         />
-                
 
 
-        {parcs.map((parc)=> (
 
 
-          <div key={parc.id}>
 
 
-            {/* 
-              Les marqueurs des parcs sont gérés
-              dans PositionMarker/MapView selon ta version.
-              Cette boucle garde la logique des parcs.
-            */}
 
 
-          </div>
+        {parcs.map((parc)=>(
+
+
+          <Marker
+
+
+            key={parc.id}
+
+
+            position={[
+
+              parc.latitude,
+
+              parc.longitude
+
+            ]}
+
+
+            icon={iconeParc}
+
+
+          >
+
+
+            <Popup>
+
+
+              <b>
+
+                🌳 {parc.nom}
+
+              </b>
+
+
+              <br />
+
+
+              {parc.adresse}
+
+
+              <br />
+
+
+              {parc.ferme
+
+                ?
+
+                "🔒 Fermé"
+
+                :
+
+                "🟢 Ouvert"
+
+              }
+
+
+
+
+
+              {!parc.ferme && (
+
+                <button
+
+                  style={{
+
+                    marginTop:"10px",
+
+                    background:"#15803d",
+
+                    color:"white",
+
+                    padding:"6px 12px",
+
+                    borderRadius:"10px"
+
+                  }}
+
+
+                  onClick={()=>
+
+
+                    onFermerParc(
+
+                      parc.id
+
+                    )
+
+
+                  }
+
+                >
+
+                  Fermer
+
+                </button>
+
+              )}
+
+
+
+            </Popup>
+
+
+          </Marker>
 
 
         ))}
@@ -249,39 +320,27 @@ function MapView({
 
 
 
-        {retourPC && (
+
+        {retourPC && positionAgent && (
+
 
           <RouteLine
 
-            points={
 
-              positionAgent
+            points={[
 
-              ?
+              positionAgent,
 
-              [
+              centreInitial
 
-                positionAgent,
+            ]}
 
-                [
-
-                  43.6329,
-
-                  3.9025
-
-                ]
-
-              ]
-
-              :
-
-              []
-
-            }
 
             color="green"
 
+
           />
+
 
         )}
 
@@ -296,143 +355,11 @@ function MapView({
 
 
 
-
-
-      <div className="
-
-        bg-white
-
-        text-green-800
-
-        rounded-2xl
-
-        p-4
-
-        mt-4
-
-        shadow-xl
-
-      ">
-
-
-        <h2 className="
-
-          font-bold
-
-          text-xl
-
-        ">
-
-          🌳 Parcs
-
-        </h2>
-
-
-
-
-
-        {parcs.map((parc)=> (
-
-
-          <div
-
-            key={parc.id}
-
-            className="
-
-              flex
-
-              justify-between
-
-              items-center
-
-              border-b
-
-              py-2
-
-            "
-
-          >
-
-
-
-            <span>
-
-              {parc.ferme ? "🔒" : "🌳"}
-
-              {" "}
-
-              {parc.nom}
-
-
-            </span>
-
-
-
-
-
-            {!parc.ferme && (
-
-              <button
-
-
-                onClick={()=>
-
-
-                  onFermerParc(
-
-                    parc.id
-
-                  )
-
-
-                }
-
-
-                className="
-
-                  bg-green-700
-
-                  text-white
-
-                  px-3
-
-                  py-1
-
-                  rounded-xl
-
-                "
-
-              >
-
-                Fermer
-
-              </button>
-
-            )}
-
-
-
-          </div>
-
-
-        ))}
-
-
-
-      </div>
-
-
-
-
-
     </div>
 
   );
 
 }
-
-
 
 
 

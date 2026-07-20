@@ -18,21 +18,26 @@ import Progression from "./components/Patrol/Progression";
 import Historique from "./components/Patrol/Historique";
 import RetourPC from "./components/Patrol/RetourPC";
 
+
 import {
   calculerItineraire
 } from "./services/routing";
+
 
 import {
   trouverParcLePlusProche
 } from "./utils/nextPark";
 
+
 import {
   sauvegarderHistorique
 } from "./utils/historique";
 
+
 import {
   ouvrirNavigation
 } from "./utils/navigation";
+
 
 import {
   useGPS
@@ -53,10 +58,9 @@ function App(){
 
 
 
-  const positionAgent:
-    [number, number] | null =
+  const positionAgent: [number, number] | null =
 
-      position
+    position
 
       ?
 
@@ -73,6 +77,14 @@ function App(){
 
 
 
+  
+
+
+
+
+
+
+
   const [
     listeParcs,
     setListeParcs
@@ -80,6 +92,7 @@ function App(){
 
 
     const sauvegarde =
+
       localStorage.getItem(
         "patrouille-parcs"
       );
@@ -102,10 +115,14 @@ function App(){
 
 
 
+
+
   const [
     modePatrouille,
     setModePatrouille
   ] = useState(false);
+
+
 
 
 
@@ -116,10 +133,14 @@ function App(){
 
 
 
+
+
   const [
     retourPC,
     setRetourPC
   ] = useState(false);
+
+
 
 
 
@@ -138,11 +159,6 @@ function App(){
     dureeProchain,
     setDureeProchain
   ] = useState<number | null>(null);
-
-
-
-
-
 
 
   useEffect(()=>{
