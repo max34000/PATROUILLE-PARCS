@@ -1,164 +1,52 @@
 import type { Parc } from "../types/Parc";
+import { distance } from "./distance";
 
 
-function distanceSimple(
+/**
+ * Recherche le parc ouvert le plus proche
+ * à partir de la position GPS de l'agent
+ */
 
-  lat1:number,
-  lon1:number,
-  lat2:number,
-  lon2:number
-
-) {
-
-
-  const R = 6371;
+export function trouverParcLePlusProche(
+  position: [number, number],
+  parcs: Parc[]
+): Parc | null {
 
 
-  const dLat =
-    (lat2-lat1)
-    *
-    Math.PI
-    /
-    180;
-
-
-  const dLon =
-    (lon2-lon1)
-    *
-    Math.PI
-    /
-    180;
-
-
-
-  const a =
-
-    Math.sin(dLat/2)**2
-
-    +
-
-    Math.cos(lat1*Math.PI/180)
-
-    *
-
-    Math.cos(lat2*Math.PI/180)
-
-    *
-
-    Math.sin(dLon/2)**2;
-
-
-
-  return (
-
-    R *
-
-    2 *
-
-    Math.atan2(
-
-      Math.sqrt(a),
-
-      Math.sqrt(1-a)
-
-    )
-
+  const parcsOuverts = parcs.filter(
+    (parc) => !parc.ferme
   );
 
 
-}
-
-
-
-
-
-
-
-export function trouverParcLePlusProche(
-
-  position:[number,number],
-
-  parcs:Parc[]
-
-) {
-
-
-
-  const ouverts =
-
-    parcs.filter(
-
-      (parc)=>
-
-        !parc.ferme
-
-    );
-
-
-
-  if(ouverts.length===0){
-
+  if (parcsOuverts.length === 0) {
     return null;
-
   }
 
 
+  return parcsOuverts.reduce(
+    (plusProche, parcActuel) => {
 
 
-
-  return ouverts.reduce(
-
-    (plusProche, parc)=>{
-
-
-      const distanceParc =
-
-        distanceSimple(
-
-          position[0],
-
-          position[1],
-
-          parc.latitude,
-
-          parc.longitude
-
-        );
+      const distanceActuelle = distance(
+        position[0],
+        position[1],
+        parcActuel.latitude,
+        parcActuel.longitude
+      );
 
 
+      const distancePlusProche = distance(
+        position[0],
+        position[1],
+        plusProche.latitude,
+        plusProche.longitude
+      );
 
 
-      const distanceActuelle =
-
-        distanceSimple(
-
-          position[0],
-
-          position[1],
-
-          plusProche.latitude,
-
-          plusProche.longitude
-
-        );
-
-
-
-
-      return distanceParc < distanceActuelle
-
-        ?
-
-        parc
-
-        :
-
-        plusProche;
-
-
+      return distanceActuelle < distancePlusProche
+        ? parcActuel
+        : plusProche;
 
     }
-
   );
-
 }

@@ -1,60 +1,52 @@
-// Distance en mètres
-export function calculerDistance(
+/**
+ * Calcul de distance GPS entre deux points
+ * Retourne une distance en mètres
+ */
+
+export function distance(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
-) {
+): number {
 
-  const R = 6371000; // rayon Terre en mètres
+  const R = 6371000; // rayon moyen de la Terre en mètres
 
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
+  const latRad1 = (lat1 * Math.PI) / 180;
+  const latRad2 = (lat2 * Math.PI) / 180;
 
-  const Δφ =
-    (lat2 - lat1) * Math.PI / 180;
-
-  const Δλ =
-    (lon2 - lon1) * Math.PI / 180;
-
+  const deltaLat = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLon = ((lon2 - lon1) * Math.PI) / 180;
 
   const a =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) *
-    Math.cos(φ2) *
-    Math.sin(Δλ / 2) ** 2;
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(latRad1) *
+      Math.cos(latRad2) *
+      Math.sin(deltaLon / 2) ** 2;
 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  const c =
-    2 *
-    Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(1 - a)
-    );
-
-
-  return R * c;
-
+  return Math.round(R * c);
 }
 
 
+/**
+ * Alias de compatibilité
+ * Permet aux anciens fichiers d'utiliser calculateDistance
+ */
+
+export const calculateDistance = distance;
 
 
-// Distance en kilomètres
-export function distanceKm(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-) {
+/**
+ * Formatage affichage terrain
+ */
 
-  return (
-    calculerDistance(
-      lat1,
-      lon1,
-      lat2,
-      lon2
-    ) / 1000
-  );
+export function formatDistance(metres: number): string {
 
+  if (metres < 1000) {
+    return `${metres} m`;
+  }
+
+  return `${(metres / 1000).toFixed(1)} km`;
 }

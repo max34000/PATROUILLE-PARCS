@@ -1,10 +1,12 @@
 interface Props {
 
-  total:number;
+  total: number;
 
-  fermes:number;
+  fermes: number;
 
 }
+
+
 
 
 
@@ -14,24 +16,34 @@ function Progression({
 
   fermes
 
-}:Props){
+}: Props) {
+
 
 
   const pourcentage =
 
     total === 0
 
-    ?
+      ?
 
-    100
+      100
 
-    :
+      :
 
-    Math.round(
+      Math.min(
 
-      (fermes / total) * 100
+        100,
 
-    );
+        Math.round(
+
+          (fermes / total) * 100
+
+        )
+
+      );
+
+
+
 
 
 
@@ -51,6 +63,7 @@ function Progression({
     ">
 
 
+
       <h2 className="
         text-xl
         font-bold
@@ -62,11 +75,17 @@ function Progression({
 
 
 
+
+
+
       <p className="text-4xl font-bold mt-3">
 
         {fermes} / {total}
 
       </p>
+
+
+
 
 
 
@@ -85,26 +104,39 @@ function Progression({
           className="
             bg-green-600
             h-full
+            transition-all
+            duration-500
           "
-
 
           style={{
 
-            width:`${pourcentage}%`
+            width: `${pourcentage}%`
 
           }}
 
         />
 
-
-
       </div>
+
+
+
+
 
 
 
       <p className="mt-2">
 
-        {pourcentage}% terminé
+        {pourcentage === 100
+
+          ?
+
+          "✅ Tournée terminée"
+
+          :
+
+          `${pourcentage}% terminé`
+
+        }
 
       </p>
 
@@ -115,6 +147,7 @@ function Progression({
   );
 
 }
+
 
 
 export default Progression;

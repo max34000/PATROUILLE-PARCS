@@ -5,22 +5,31 @@ interface RouteLineProps {
 
   points: [number, number][];
 
+  color?: string;
+
 }
+
+
 
 
 
 function RouteLine({
 
-  points
+  points,
+
+  color = "blue"
 
 }: RouteLineProps) {
 
 
-  if (!points || points.length === 0) {
+
+  if (points.length === 0) {
 
     return null;
 
   }
+
+
 
 
 
@@ -30,17 +39,23 @@ function RouteLine({
 
       positions={points}
 
-      color="blue"
+      color={color}
 
       weight={6}
 
       opacity={0.9}
+
+      lineCap="round"
+
+      lineJoin="round"
 
     />
 
   );
 
 }
+
+
 
 
 

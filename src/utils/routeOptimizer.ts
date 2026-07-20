@@ -1,87 +1,93 @@
-import { distanceKm } from "./distance";
+import type { Parc } from "../types/Parc";
+import { distance } from "./distance";
 
 
-type Point = {
-  latitude:number;
-  longitude:number;
-};
+interface Point {
+  latitude: number;
+  longitude: number;
+}
 
 
-type Parc = Point & {
-  id:string;
-  nom:string;
-  adresse:string;
-  ferme:boolean;
-};
-
-
+/**
+ * Calcul d'une tournée optimisée par proximité
+ *
+ * Principe :
+ * - part de la position actuelle de l'agent
+ * - cherche le parc ouvert le plus proche
+ * - continue jusqu'à avoir traité tous les parcs
+ *
+ * (Algorithme du plus proche voisin)
+ */
 
 export function calculerTournee(
-  position:[number,number],
-  parcs:Parc[],
-  pc:Point
-) {
+  position: [number, number],
+  parcs: Parc[],
+  _pc: Point
+): Parc[] {
 
 
   const restants = parcs.filter(
-    (parc)=>!parc.ferme
+    (parc) => !parc.ferme
   );
 
 
-  const tournee:Parc[] = [];
+  const tournee: Parc[] = [];
+
 
   let positionActuelle = {
-    latitude:position[0],
-    longitude:position[1]
+    latitude: position[0],
+    longitude: position[1]
   };
 
 
 
-  while(restants.length > 0) {
+  while (restants.length > 0) {
 
 
     let indexPlusProche = 0;
 
-
-    let distancePlusCourte =
-      Infinity;
+    let distancePlusCourte = Infinity;
 
 
 
-    restants.forEach((parc,index)=>{
+    restants.forEach(
+      (parc, index) => {
 
 
-      const d = distanceKm(
-        positionActuelle.latitude,
-        positionActuelle.longitude,
-        parc.latitude,
-        parc.longitude
-      );
+        const distanceParc = distance(
+          positionActuelle.latitude,
+          positionActuelle.longitude,
+          parc.latitude,
+          parc.longitude
+        );
 
 
-      if(d < distancePlusCourte){
+        if (distanceParc < distancePlusCourte) {
 
-        distancePlusCourte = d;
-        indexPlusProche = index;
+          distancePlusCourte = distanceParc;
+          indexPlusProche = index;
+
+        }
 
       }
-
-    });
-
+    );
 
 
-    const choisi =
+
+    const parcChoisi =
       restants[indexPlusProche];
 
 
-    tournee.push(choisi);
+
+    tournee.push(parcChoisi);
 
 
 
     positionActuelle = {
-      latitude:choisi.latitude,
-      longitude:choisi.longitude
+      latitude: parcChoisi.latitude,
+      longitude: parcChoisi.longitude
     };
+
 
 
     restants.splice(
@@ -89,9 +95,7 @@ export function calculerTournee(
       1
     );
 
-
   }
-
 
 
   return tournee;

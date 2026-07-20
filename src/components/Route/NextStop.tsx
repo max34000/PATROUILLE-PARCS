@@ -1,27 +1,19 @@
-import { calculerDistance } from "../../utils/distance";
+import type { Parc } from "../../types/Parc";
 
+import { distance, formatDistance } from "../../utils/distance";
 
-type Parc = {
-
-  id: string;
-  nom: string;
-  adresse: string;
-  latitude: number;
-  longitude: number;
-  ferme: boolean;
-  heureFermeture?: string | null;
-
-};
+import { ouvrirNavigation } from "../../utils/navigation";
 
 
 
-type Props = {
+interface Props {
 
   parcs: Parc[];
 
-  positionAgent: [number, number] | null;
+  positionAgent:
+    [number, number] | null;
 
-};
+}
 
 
 
@@ -41,7 +33,14 @@ function NextStop({
 
     return (
 
-      <div className="bg-white text-green-800 rounded-2xl p-4 mt-4 text-center">
+      <div className="
+        bg-white
+        text-green-800
+        rounded-2xl
+        p-4
+        mt-4
+        text-center
+      ">
 
         📍 Recherche de position...
 
@@ -50,6 +49,8 @@ function NextStop({
     );
 
   }
+
+
 
 
 
@@ -63,11 +64,20 @@ function NextStop({
 
 
 
+
+
   if (disponibles.length === 0) {
 
     return (
 
-      <div className="bg-white text-green-800 rounded-2xl p-4 mt-4 text-center">
+      <div className="
+        bg-white
+        text-green-800
+        rounded-2xl
+        p-4
+        mt-4
+        text-center
+      ">
 
         🎉 Tous les parcs sont fermés
 
@@ -80,66 +90,69 @@ function NextStop({
 
 
 
-  let prochain = disponibles[0];
-
-  let distanceMin = Infinity;
 
 
+  const prochain = disponibles.reduce(
 
-  disponibles.forEach((parc) => {
+    (plusProche, parc) => {
 
 
-    const distance = calculerDistance(
+      const distanceParc = distance(
 
-      positionAgent[0],
+        positionAgent[0],
 
-      positionAgent[1],
+        positionAgent[1],
 
-      parc.latitude,
+        parc.latitude,
 
-      parc.longitude
+        parc.longitude
 
-    );
+      );
 
 
 
-    if (distance < distanceMin) {
+      const distanceActuelle = distance(
 
-      distanceMin = distance;
+        positionAgent[0],
 
-      prochain = parc;
+        positionAgent[1],
+
+        plusProche.latitude,
+
+        plusProche.longitude
+
+      );
+
+
+
+      return distanceParc < distanceActuelle
+
+        ? parc
+
+        : plusProche;
+
 
     }
 
-
-  });
-
+  );
 
 
 
 
 
-  function naviguer() {
 
 
-    const url =
+  const distanceProchain = distance(
 
-      `https://www.google.com/maps/dir/?api=1` +
+    positionAgent[0],
 
-      `&destination=${prochain.latitude},${prochain.longitude}`;
+    positionAgent[1],
 
+    prochain.latitude,
 
+    prochain.longitude
 
-    window.open(
-
-      url,
-
-      "_blank"
-
-    );
-
-
-  }
+  );
 
 
 
@@ -149,7 +162,14 @@ function NextStop({
 
   return (
 
-    <div className="bg-white text-green-800 rounded-2xl p-5 mt-4 shadow-xl">
+    <div className="
+      bg-white
+      text-green-800
+      rounded-2xl
+      p-5
+      mt-4
+      shadow-xl
+    ">
 
 
       <h2 className="text-xl font-bold">
@@ -169,41 +189,36 @@ function NextStop({
 
 
 
+
       <p className="mt-2">
 
         📏 Distance :
 
         {" "}
 
-        {Math.round(distanceMin)}
-
-        {" m"}
+        {formatDistance(distanceProchain)}
 
       </p>
 
 
 
 
+
+
       <button
 
-        onClick={naviguer}
+        onClick={() =>
+          ouvrirNavigation(prochain)
+        }
 
         className="
-
-        mt-4
-
-        w-full
-
-        bg-green-700
-
-        text-white
-
-        font-bold
-
-        py-3
-
-        rounded-xl
-
+          mt-4
+          w-full
+          bg-green-700
+          text-white
+          font-bold
+          py-3
+          rounded-xl
         "
 
       >
@@ -211,7 +226,6 @@ function NextStop({
         🚗 Y ALLER
 
       </button>
-
 
 
 

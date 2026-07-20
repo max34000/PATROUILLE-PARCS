@@ -1,10 +1,16 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
 
-import { chargerHistorique }
-from "../../utils/historique";
+import {
+  chargerHistorique
+} from "../../utils/historique";
 
-import type { HistoriqueAction }
-from "../../types/Historique";
+import type {
+  HistoriqueAction
+} from "../../types/Historique";
+
 
 
 
@@ -12,29 +18,58 @@ from "../../types/Historique";
 function Historique() {
 
 
-  const [historique, setHistorique] =
+  const [
+    historique,
+    setHistorique
+  ] = useState<HistoriqueAction[]>([]);
 
-    useState<HistoriqueAction[]>([]);
 
 
 
-  useEffect(()=>{
 
+  function actualiser() {
 
     setHistorique(
-
       chargerHistorique()
+    );
 
+  }
+
+
+
+
+
+  useEffect(() => {
+
+
+    actualiser();
+
+
+    window.addEventListener(
+      "focus",
+      actualiser
     );
 
 
-  },[]);
+    return () => {
+
+      window.removeEventListener(
+        "focus",
+        actualiser
+      );
+
+    };
+
+
+  }, []);
 
 
 
 
 
-  if(historique.length === 0){
+
+
+  if (historique.length === 0) {
 
     return null;
 
@@ -72,15 +107,21 @@ function Historique() {
 
 
 
-      <div className="mt-5 space-y-4">
+
+      <div className="
+        mt-5
+        space-y-4
+      ">
 
 
-        {historique.map((action,index)=>(
+        {[...historique]
+          .reverse()
+          .map((action,index)=>(
 
 
           <div
 
-            key={index}
+            key={`${action.parcId}-${index}`}
 
             className="
               border-b
@@ -90,9 +131,7 @@ function Historique() {
           >
 
 
-            <p className="
-              font-bold
-            ">
+            <p className="font-bold">
 
               ✅ {action.parcNom}
 

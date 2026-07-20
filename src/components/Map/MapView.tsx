@@ -5,66 +5,55 @@ import {
   Popup
 } from "react-leaflet";
 
-import "leaflet/dist/leaflet.css";
-
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState
+} from "react";
 
 import L from "leaflet";
 
+import "leaflet/dist/leaflet.css";
+
+import type { Parc } from "../../types/Parc";
+
 import PositionMarker from "./PositionMarker";
 import RouteLine from "./RouteLine";
+import MapCenter from "./MapCenter";
 
 import { pc } from "../../data/pc";
 
 import { calculerItineraire } from "../../services/routing";
 
-import { trouverParcLePlusProche }
-from "../../utils/nextPark";
-
-
-
-type Parc = {
-
-  id: string;
-
-  nom: string;
-
-  adresse: string;
-
-  latitude: number;
-
-  longitude: number;
-
-  ferme: boolean;
-
-  heureFermeture?: string | null;
-
-};
+import { trouverParcLePlusProche } from "../../utils/nextPark";
 
 
 
 
 
-type Props = {
+interface Props {
 
   parcs: Parc[];
 
-  setParcs:
-    React.Dispatch<
-      React.SetStateAction<Parc[]>
-    >;
-
+  setParcs: React.Dispatch<
+    React.SetStateAction<Parc[]>
+  >;
 
   positionAgent:
     [number, number] | null;
 
-
   setPositionAgent:
     React.Dispatch<
-      React.SetStateAction<[number, number] | null>
+      React.SetStateAction<
+        [number, number] | null
+      >
     >;
 
-};
+  retourPC: boolean;
+
+  onFermerParc:
+    (id: string) => void;
+
+}
 
 
 
@@ -76,11 +65,13 @@ function MapView({
 
   parcs,
 
-  setParcs,
-
   positionAgent,
 
-  setPositionAgent
+  setPositionAgent,
+
+  retourPC,
+
+  onFermerParc
 
 }: Props) {
 
@@ -91,6 +82,36 @@ function MapView({
 
 
 
+  const [itineraireRetour, setItineraireRetour] =
+    useState<[number, number][]>([]);
+
+
+
+  const [calculRouteEnCours, setCalculRouteEnCours] =
+    useState(false);
+
+
+
+
+
+
+  const prochainParc =
+
+    positionAgent
+
+      ?
+
+      trouverParcLePlusProche(
+        positionAgent,
+        parcs
+      )
+
+      :
+
+      null;
+
+
+
 
 
 
@@ -98,8 +119,9 @@ function MapView({
   useEffect(() => {
 
 
-    delete (L.Icon.Default.prototype as any)
-      ._getIconUrl;
+    delete (
+      L.Icon.Default.prototype as any
+    )._getIconUrl;
 
 
 
@@ -108,16 +130,13 @@ function MapView({
       iconRetinaUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
 
-
       iconUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-
 
       shadowUrl:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 
     });
-
 
 
   }, []);
@@ -129,20 +148,21 @@ function MapView({
 
 
 
-
-  // Calcul de la vraie route vers le parc le plus proche
-
   useEffect(() => {
-
 
 
     async function chargerRoute() {
 
 
+      if (
 
-      if (!positionAgent) {
+        !positionAgent ||
 
-        setItineraire([]);
+        !prochainParc ||
+
+        calculRouteEnCours
+
+      ) {
 
         return;
 
@@ -151,51 +171,18 @@ function MapView({
 
 
 
-
-
-      const prochainParc =
-
-        trouverParcLePlusProche(
-
-          positionAgent,
-
-          parcs
-
-        );
-
-
-
-
-
-
-
-      if (!prochainParc) {
-
-
-        setItineraire([]);
-
-        return;
-
-
-      }
-
-
-
-
+      setCalculRouteEnCours(true);
 
 
 
       try {
 
 
-
         const resultat =
 
           await calculerItineraire(
 
-
             positionAgent,
-
 
             [
 
@@ -205,61 +192,31 @@ function MapView({
 
             ]
 
-
           );
 
 
 
-
-
-
-
         setItineraire(
-
           resultat.geometrie
-
         );
-
-
-
-
-
-
-
-        console.log(
-
-          "🚓 Route vers",
-
-          prochainParc.nom,
-
-          resultat
-
-        );
-
-
-
 
 
       }
-
 
       catch(error) {
 
-
         console.error(
-
-          "Erreur itinéraire",
-
+          "Erreur route",
           error
-
         );
-
-
-        setItineraire([]);
 
       }
 
+      finally {
 
+        setCalculRouteEnCours(false);
+
+      }
 
 
     }
@@ -267,19 +224,32 @@ function MapView({
 
 
 
+    const timer =
+
+      window.setTimeout(
+
+        chargerRoute,
+
+        2000
+
+      );
 
 
-    chargerRoute();
 
+    return () => {
 
+      clearTimeout(timer);
 
+    };
 
 
   }, [
 
     positionAgent,
 
-    parcs
+    prochainParc,
+
+    calculRouteEnCours
 
   ]);
 
@@ -291,82 +261,83 @@ function MapView({
 
 
 
+  useEffect(() => {
+
+
+    async function chargerRetourPC() {
+
+
+      if (
+
+        !positionAgent ||
+
+        !retourPC
+
+      ) {
+
+
+        setItineraireRetour([]);
+
+        return;
+
+      }
 
 
 
-  function fermerParc(id:string) {
+      try {
+
+
+        const resultat =
+
+          await calculerItineraire(
+
+            positionAgent,
+
+            [
+
+              pc.latitude,
+
+              pc.longitude
+
+            ]
+
+          );
 
 
 
-    const heure =
+        setItineraireRetour(
 
-      new Date()
+          resultat.geometrie
 
-      .toLocaleTimeString(
-
-        "fr-FR",
-
-        {
-
-          hour:"2-digit",
-
-          minute:"2-digit"
-
-        }
-
-      );
+        );
 
 
+      }
+
+      catch(error) {
+
+        console.error(
+          "Erreur retour PC",
+          error
+        );
+
+      }
 
 
-
-
-    setParcs((anciens)=>
+    }
 
 
 
-      anciens.map((parc)=>
+    chargerRetourPC();
 
 
+  }, [
 
-        parc.id === id
+    positionAgent,
 
+    retourPC
 
-        ?
-
-
-        {
-
-          ...parc,
-
-          ferme:true,
-
-          heureFermeture:heure
-
-        }
-
-
-
-        :
-
-
-
-        parc
-
-
-
-      )
-
-
-
-    );
-
-
-
-  }
-
-
-
+  ]);
 
 
 
@@ -378,11 +349,7 @@ function MapView({
 
   return (
 
-
-
     <MapContainer
-
-
 
       center={[
 
@@ -392,11 +359,7 @@ function MapView({
 
       ]}
 
-
-
       zoom={14}
-
-
 
       style={{
 
@@ -406,26 +369,45 @@ function MapView({
 
       }}
 
-
-
     >
-
-
-
-
-
 
 
       <TileLayer
 
-
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-
 
       />
 
 
 
+
+
+
+      <MapCenter
+
+        position={positionAgent}
+
+        destination={
+
+          prochainParc
+
+            ?
+
+            [
+
+              prochainParc.latitude,
+
+              prochainParc.longitude
+
+            ]
+
+            :
+
+            null
+
+        }
+
+      />
 
 
 
@@ -434,12 +416,9 @@ function MapView({
 
       <PositionMarker
 
-
         positionAgent={positionAgent}
 
-
         setPositionAgent={setPositionAgent}
-
 
       />
 
@@ -451,17 +430,11 @@ function MapView({
 
 
 
-      {parcs.map((parc)=>(
-
-
+      {parcs.map((parc) => (
 
         <Marker
 
-
-
           key={parc.id}
-
-
 
           position={[
 
@@ -471,81 +444,54 @@ function MapView({
 
           ]}
 
-
-
         >
-
-
 
           <Popup>
 
 
-
             <h3 className="font-bold">
 
-
               🌳 {parc.nom}
-
 
             </h3>
 
 
-
-
             <p>
-
 
               {parc.adresse}
 
-
             </p>
-
-
 
 
 
             <p>
 
-
               {parc.ferme
-
 
                 ?
 
-
                 "🟢 Fermé"
-
 
                 :
 
-
                 "🔴 À fermer"
-
 
               }
 
-
-
             </p>
-
 
 
 
 
 
             {parc.ferme &&
-
               parc.heureFermeture && (
-
-
 
               <p>
 
                 🕒 {parc.heureFermeture}
 
               </p>
-
-
 
             )}
 
@@ -557,28 +503,25 @@ function MapView({
 
             {!parc.ferme && (
 
-
-
               <button
 
-
-
-                onClick={()=>
-
-                  fermerParc(parc.id)
-
+                onClick={() =>
+                  onFermerParc(parc.id)
                 }
 
-
+                className="
+                  bg-green-600
+                  text-white
+                  px-3
+                  py-2
+                  rounded
+                "
 
               >
 
                 ✅ Fermer ce parc
 
-
               </button>
-
-
 
             )}
 
@@ -587,11 +530,7 @@ function MapView({
           </Popup>
 
 
-
-
         </Marker>
-
-
 
       ))}
 
@@ -605,8 +544,6 @@ function MapView({
 
       <Marker
 
-
-
         position={[
 
           pc.latitude,
@@ -615,20 +552,13 @@ function MapView({
 
         ]}
 
-
-
       >
-
-
 
         <Popup>
 
-
           🏁 PC Papa Charlie
 
-
         </Popup>
-
 
 
       </Marker>
@@ -643,31 +573,29 @@ function MapView({
 
       <RouteLine
 
-
-
         points={itineraire}
 
-
+        color="blue"
 
       />
 
 
 
+      <RouteLine
 
+        points={itineraireRetour}
+
+        color="green"
+
+      />
 
 
 
     </MapContainer>
 
-
-
   );
 
 }
-
-
-
-
 
 
 

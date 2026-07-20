@@ -1,4 +1,10 @@
+import {
+  useEffect,
+  useState
+} from "react";
+
 import type { Parc } from "../../types/Parc";
+
 
 
 interface Props {
@@ -11,7 +17,11 @@ interface Props {
 
   onFermer: () => void;
 
+  onNaviguer: () => void;
+
 }
+
+
 
 
 
@@ -25,9 +35,30 @@ function PatrolMode({
 
   duree,
 
-  onFermer
+  onFermer,
+
+  onNaviguer
 
 }: Props) {
+
+
+
+  const [navigationActive, setNavigationActive] =
+    useState(false);
+
+
+
+
+
+  useEffect(() => {
+
+    setNavigationActive(false);
+
+  }, [parcSuivant]);
+
+
+
+
 
 
 
@@ -59,8 +90,10 @@ function PatrolMode({
         </h1>
 
 
-
-        <p className="text-xl mt-6">
+        <p className="
+          text-xl
+          mt-6
+        ">
 
           Tous les parcs sont fermés
 
@@ -69,25 +102,6 @@ function PatrolMode({
 
       </div>
 
-    );
-
-  }
-
-
-
-
-
-  function ouvrirNavigation() {
-
-
-    const url =
-
-      `https://www.google.com/maps/dir/?api=1&destination=${parcSuivant.latitude},${parcSuivant.longitude}`;
-
-
-    window.open(
-      url,
-      "_blank"
     );
 
   }
@@ -128,6 +142,7 @@ function PatrolMode({
 
 
 
+
       <div className="
         bg-white
         text-green-800
@@ -147,6 +162,7 @@ function PatrolMode({
           Prochain arrêt
 
         </p>
+
 
 
 
@@ -179,16 +195,20 @@ function PatrolMode({
 
         {distance !== null && (
 
-
           <p className="
             text-xl
             mt-6
           ">
 
-            📏 {distance.toFixed(2)} km
+            📏 {distance < 1
+
+              ? `${Math.round(distance * 1000)} m`
+
+              : `${distance.toFixed(1)} km`
+
+            }
 
           </p>
-
 
         )}
 
@@ -200,16 +220,32 @@ function PatrolMode({
 
         {duree !== null && (
 
-
           <p className="text-xl">
 
             ⏱ {Math.round(duree)} min
 
           </p>
 
-
         )}
 
+
+
+
+
+
+        {navigationActive && (
+
+          <p className="
+            mt-6
+            text-green-600
+            font-bold
+          ">
+
+            🛰 Navigation GPS active
+
+          </p>
+
+        )}
 
 
 
@@ -222,12 +258,15 @@ function PatrolMode({
 
 
 
-
       <button
 
+        onClick={() => {
 
-        onClick={ouvrirNavigation}
+          setNavigationActive(true);
 
+          onNaviguer();
+
+        }}
 
         className="
           mt-8
@@ -246,10 +285,7 @@ function PatrolMode({
 
         🚗 Y ALLER
 
-
       </button>
-
-
 
 
 
@@ -259,9 +295,7 @@ function PatrolMode({
 
       <button
 
-
         onClick={onFermer}
-
 
         className="
           mt-5
@@ -280,9 +314,7 @@ function PatrolMode({
 
         ✅ PARC FERMÉ
 
-
       </button>
-
 
 
 
@@ -292,8 +324,6 @@ function PatrolMode({
   );
 
 }
-
-
 
 
 
