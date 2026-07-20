@@ -7,20 +7,10 @@ import {
 } from "react-leaflet";
 
 
-
-
 interface Props {
 
-
   positionAgent:
-
-    [number,number] | null;
-
-
-  destination:
-
-    [number,number] | null;
-
+    [number, number] | null;
 
 }
 
@@ -28,15 +18,11 @@ interface Props {
 
 
 
-
 function MapCenter({
 
-  positionAgent,
+  positionAgent
 
-  destination
-
-}:Props){
-
+}: Props) {
 
 
   const map = useMap();
@@ -44,30 +30,32 @@ function MapCenter({
 
 
 
-
-
   useEffect(()=>{
 
 
-    if(positionAgent){
+    if(!positionAgent){
 
-
-      map.setView(
-
-        positionAgent,
-
-        map.getZoom(),
-
-        {
-
-          animate:true
-
-        }
-
-      );
-
+      return;
 
     }
+
+
+
+    map.flyTo(
+
+      positionAgent,
+
+      map.getZoom(),
+
+      {
+
+        animate:true,
+
+        duration:1
+
+      }
+
+    );
 
 
 
@@ -75,13 +63,9 @@ function MapCenter({
 
     positionAgent,
 
-    destination,
-
     map
 
   ]);
-
-
 
 
 
