@@ -14,17 +14,10 @@ import type {
 } from "./types/Parc";
 
 
-import MapView from "./components/Map/MapView";
+import MapScreen from "./screens/MapScreen";
+import PatrolScreen from "./screens/PatrolScreen";
+import TerrainScreen from "./screens/TerrainScreen";
 
-
-import NextStop from "./components/Route/NextStop";
-import Tournee from "./components/Route/Tournee";
-
-
-import PatrolMode from "./components/Patrol/PatrolMode";
-import AgentMode from "./components/Patrol/AgentMode";
-import Progression from "./components/Patrol/Progression";
-import Historique from "./components/Patrol/Historique";
 import RetourPC from "./components/Patrol/RetourPC";
 
 
@@ -592,245 +585,61 @@ const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
 
 
-      {!modePatrouille && !modeTerrain && (
-
-        <>
-
-
-          <MapView
-
-
-            parcs={listeParcs}
-
-
-            setParcs={setListeParcs}
-
-
-            positionAgent={positionAgent}
-
-
-            traceGPS={traceGPS}
-
-
-            route={navigation.points}
-
-
-            retourPC={retourPC}
-
-          
-            onFermerParc={fermerParc}
-
-
-          />
-
-
-
-
-
-          <NextStop
-
-            parcs={listeParcs}
-
-            positionAgent={positionAgent}
-
-          />
-
-
-
-
-
-          <Tournee
-
-            parcs={listeParcs}
-
-            positionAgent={positionAgent}
-
-          />
-
-
-        </>
-
-      )}
-
-
-
-
-
-
-
-
-
-      {modeTerrain && (
-
-
-        <AgentMode
-
-
-          parcSuivant={prochainParc}
-
-
-          distance={distanceProchain}
-
-
-          duree={dureeProchain}
-
-
-
-
-          onFermer={()=>{
-
-
-            if(prochainParc){
-
-              fermerParc(
-
-                prochainParc.id
-
-              );
-
-            }
-
-
-          }}
-
-
-
-
-
-          onNaviguer={()=>{
-
-
-            if(prochainParc){
-
-              ouvrirNavigation(
-
-                prochainParc
-
-              );
-
-            }
-
-
-          }}
-
-
-
-        />
-
-
-      )}
-
-
-
-
-
-
-
-
-
-      {modePatrouille && (
-
-
-        <>
-
-
-          <Progression
-
-
-            total={listeParcs.length}
-
-
-            fermes={
-
-              listeParcs.filter(
-
-                p=>p.ferme
-
-              ).length
-
-            }
-
-
-          />
-
-
-
-
-
-          <PatrolMode
-
-
-            parcSuivant={prochainParc}
-
-
-            distance={distanceProchain}
-
-
-            duree={dureeProchain}
-
-
-
-
-            onFermer={()=>{
-
-
-              if(prochainParc){
-
-                fermerParc(
-
-                  prochainParc.id
-
-                );
-
-              }
-
-
-            }}
-
-
-
-
-
-            onNaviguer={()=>{
-
-
-              setModeTerrain(true);
-
-              setModePatrouille(false);
-
-
-            }}
-
-
-
-          />
-
-
-
-
-
-          <Historique />
-
-
-        </>
-
-
-      )}
-
-
-
-
-
-
-
+      <MapScreen
+  parcs={listeParcs}
+  setParcs={setListeParcs}
+  positionAgent={positionAgent}
+  traceGPS={traceGPS}
+  navigation={navigation}
+  retourPC={retourPC}
+  onFermerParc={fermerParc}
+/>
+
+
+
+
+
+
+
+
+
+{modeTerrain && (
+  <TerrainScreen
+    prochainParc={prochainParc}
+    distance={distanceProchain}
+    duree={dureeProchain}
+    onFermer={() => {
+      if (prochainParc) {
+        fermerParc(prochainParc.id);
+      }
+    }}
+    onNaviguer={() => {
+      if (prochainParc) {
+        ouvrirNavigation(prochainParc);
+      }
+    }}
+  />
+)}
+
+{modePatrouille && (
+  <PatrolScreen
+    listeParcs={listeParcs}
+    prochainParc={prochainParc}
+    distance={distanceProchain}
+    duree={dureeProchain}
+    onFermer={() => {
+      if (prochainParc) {
+        fermerParc(prochainParc.id);
+      }
+    }}
+    onNaviguer={() => {
+      setModeTerrain(true);
+      setModePatrouille(false);
+    }}
+  />
+)}
     </div>
-
   );
-
 }
 
-
-
-
-
-export default App;    
+export default App;
