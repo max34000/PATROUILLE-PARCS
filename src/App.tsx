@@ -60,6 +60,8 @@ import MenuDrawer from "./components/Layout/MenuDrawer";
 import AboutModal from "./components/Layout/AboutModal";
 import ConfirmDialog from "./components/Layout/ConfirmDialog";
 
+import MainMenu from "./components/Layout/MainMenu";
+
 
 
 
@@ -553,107 +555,22 @@ const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   }}
 />
 
-<div
-  className="
-    flex
-    gap-3
-    mb-6
-  "
->
-
-
-
-
-
-        <button
-
-          onClick={()=>{
-
-            setModePatrouille(false);
-
-            setModeTerrain(false);
-
-          }}
-
-          className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
-          "
-
-        >
-
-          🗺️ Carte
-
-        </button>
-
-
-
-
-
-
-
-        <button
-
-          onClick={()=>{
-
-            setModePatrouille(true);
-
-            setModeTerrain(false);
-
-          }}
-
-          className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
-          "
-
-        >
-
-          🚓 Patrouille
-
-        </button>
-
-
-
-
-
-
-
-        <button
-
-          onClick={()=>{
-
-            setModeTerrain(true);
-
-            setModePatrouille(false);
-
-          }}
-
-          className="
-            bg-white
-            text-green-700
-            rounded-2xl
-            p-4
-            flex-1
-            font-bold
-          "
-
-        >
-
-          📱 Terrain
-
-        </button>
-
-
-      </div>
+<MainMenu
+  modePatrouille={modePatrouille}
+  modeTerrain={modeTerrain}
+  onCarte={() => {
+    setModePatrouille(false);
+    setModeTerrain(false);
+  }}
+  onPatrouille={() => {
+    setModePatrouille(true);
+    setModeTerrain(false);
+  }}
+  onTerrain={() => {
+    setModeTerrain(true);
+    setModePatrouille(false);
+  }}
+/>
 
 
 
