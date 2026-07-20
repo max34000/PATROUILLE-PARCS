@@ -53,6 +53,9 @@ import {
 } from "./hooks/useNavigation";
 
 
+import AppHeader from "./components/Layout/AppHeader";
+
+
 
 
 
@@ -489,20 +492,12 @@ function App(){
 
 
 
-      <h1
-
-        className="
-          text-4xl
-          font-bold
-          text-center
-          mb-6
-        "
-
-      >
-
-        🌳 Patrouille Parcs V3.0
-
-      </h1>
+      <AppHeader
+  gpsConnected={position !== null}
+  onMenuClick={() => {
+    console.log("Menu");
+  }}
+/>
 
 
 
