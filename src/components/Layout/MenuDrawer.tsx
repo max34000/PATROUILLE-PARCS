@@ -1,11 +1,12 @@
-type MenuDrawerProps = {
+import { APP } from "../../config/appConfig";
+
+type Props = {
   isOpen: boolean;
   onClose: () => void;
   onCarte: () => void;
   onPatrouille: () => void;
   onTerrain: () => void;
   onNouvelleTournee: () => void;
-  onSuperviseur: () => void;
   onAbout: () => void;
 };
 
@@ -16,13 +17,12 @@ export default function MenuDrawer({
   onPatrouille,
   onTerrain,
   onNouvelleTournee,
-  onSuperviseur,
   onAbout,
-}: MenuDrawerProps) {
+}: Props) {
   if (!isOpen) return null;
 
-  const itemClass =
-    "w-full text-left px-4 py-3 rounded-xl hover:bg-green-700 transition";
+  const item =
+    "w-full text-left px-4 py-3 rounded-xl hover:bg-green-700";
 
   return (
     <>
@@ -31,42 +31,32 @@ export default function MenuDrawer({
         onClick={onClose}
       />
 
-      <aside className="fixed top-0 left-0 h-full w-72 bg-green-800 text-white shadow-2xl z-50 p-5">
+      <aside className="fixed left-0 top-0 h-full w-72 bg-green-800 text-white z-50 p-5">
 
         <h2 className="text-2xl font-bold mb-6">
-          ☰ Menu
+          ☰ {APP.name}
         </h2>
 
-        <button className={itemClass} onClick={onCarte}>
-          🗺️ Carte
-        </button>
+        <button className={item} onClick={onCarte}>🗺️ Carte</button>
 
-        <button className={itemClass} onClick={onPatrouille}>
-          🚓 Patrouille
-        </button>
+        <button className={item} onClick={onPatrouille}>🚓 Patrouille</button>
 
-        <button className={itemClass} onClick={onTerrain}>
-          📱 Terrain
-        </button>
+        <button className={item} onClick={onTerrain}>📱 Terrain</button>
 
-        <hr className="my-4 border-green-600" />
+        <hr className="my-4 border-green-600"/>
 
-        <button className={itemClass} onClick={onNouvelleTournee}>
+        <button className={item} onClick={onNouvelleTournee}>
           🔄 Nouvelle tournée
         </button>
 
-        <hr className="my-4 border-green-600" />
+        <hr className="my-4 border-green-600"/>
 
-        <button className={itemClass} onClick={onSuperviseur}>
-          🔒 Superviseur
-        </button>
-
-        <button className={itemClass} onClick={onAbout}>
+        <button className={item} onClick={onAbout}>
           ℹ️ À propos
         </button>
 
-        <div className="absolute bottom-6 left-5 text-xs text-green-200">
-          Version 3.0.0 FINAL
+        <div className="absolute bottom-5 left-5 text-xs">
+          {APP.version}
         </div>
       </aside>
     </>

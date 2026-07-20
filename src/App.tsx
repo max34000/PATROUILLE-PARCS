@@ -56,6 +56,11 @@ import {
 import AppHeader from "./components/Layout/AppHeader";
 
 
+import MenuDrawer from "./components/Layout/MenuDrawer";
+import AboutModal from "./components/Layout/AboutModal";
+import ConfirmDialog from "./components/Layout/ConfirmDialog";
+
+
 
 
 
@@ -252,6 +257,12 @@ function App(){
     setRetourPC
 
   ] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+const [aboutOpen, setAboutOpen] = useState(false);
+
+const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
 
 
@@ -494,26 +505,61 @@ function App(){
 
       <AppHeader
   gpsConnected={position !== null}
-  onMenuClick={() => {
-    console.log("Menu");
+  onMenuClick={() => setMenuOpen(true)}
+/>
+
+<MenuDrawer
+  isOpen={menuOpen}
+  onClose={() => setMenuOpen(false)}
+  onCarte={() => {
+    setModePatrouille(false);
+    setModeTerrain(false);
+    setMenuOpen(false);
+  }}
+  onPatrouille={() => {
+    setModePatrouille(true);
+    setModeTerrain(false);
+    setMenuOpen(false);
+  }}
+  onTerrain={() => {
+    setModeTerrain(true);
+    setModePatrouille(false);
+    setMenuOpen(false);
+  }}
+  onNouvelleTournee={() => {
+    setConfirmResetOpen(true);
+    setMenuOpen(false);
+  }}
+  onAbout={() => {
+    setAboutOpen(true);
+    setMenuOpen(false);
   }}
 />
 
+<AboutModal
+  isOpen={aboutOpen}
+  onClose={() => setAboutOpen(false)}
+/>
 
+<ConfirmDialog
+  isOpen={confirmResetOpen}
+  title="Nouvelle tournée"
+  message="Tous les parcs seront rouverts et l'historique sera réinitialisé."
+  confirmLabel="Commencer"
+  cancelLabel="Annuler"
+  onCancel={() => setConfirmResetOpen(false)}
+  onConfirm={() => {
+    setConfirmResetOpen(false);
+  }}
+/>
 
-
-
-
-
-      <div
-
-        className="
-          flex
-          gap-3
-          mb-6
-        "
-
-      >
+<div
+  className="
+    flex
+    gap-3
+    mb-6
+  "
+>
 
 
 

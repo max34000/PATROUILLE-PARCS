@@ -1,3 +1,5 @@
+import { APP } from "../../config/appConfig";
+
 type AppHeaderProps = {
   gpsConnected: boolean;
   onMenuClick: () => void;
@@ -9,15 +11,16 @@ export default function AppHeader({
 }: AppHeaderProps) {
   return (
     <header className="bg-green-800 rounded-2xl p-4 mb-6 shadow-lg">
+
       <div className="flex items-center justify-between">
 
         <div>
           <h1 className="text-2xl font-bold text-white">
-            🌳 PATROUILLE-PARCS
+            🌳 {APP.name}
           </h1>
 
           <p className="text-green-100 text-sm">
-            CCFF
+            {APP.author}
           </p>
         </div>
 
@@ -25,19 +28,21 @@ export default function AppHeader({
 
           <div className="flex items-center gap-2 text-sm">
 
-            <span>
+            <span className="text-lg">
               {gpsConnected ? "🟢" : "🔴"}
             </span>
 
-            <span>
-              {gpsConnected ? "GPS connecté" : "GPS indisponible"}
+            <span className="hidden sm:inline">
+              {gpsConnected
+                ? "GPS connecté"
+                : "GPS indisponible"}
             </span>
 
           </div>
 
           <button
             onClick={onMenuClick}
-            className="text-3xl"
+            className="text-3xl hover:scale-110 transition-transform"
             aria-label="Menu"
           >
             ☰
@@ -46,6 +51,7 @@ export default function AppHeader({
         </div>
 
       </div>
+
     </header>
   );
 }

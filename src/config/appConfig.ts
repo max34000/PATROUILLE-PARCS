@@ -10,10 +10,10 @@ export const APP = {
     "Application de gestion des tournées de fermeture des parcs.",
 
   technologies: [
-    "React 19",
-    "TypeScript",
-    "Vite",
-    "Leaflet",
-    "PWA",
-  ],
+  "React 19",
+  "TypeScript",
+  "Vite",
+  "Leaflet",
+  "PWA",
+],
 };
