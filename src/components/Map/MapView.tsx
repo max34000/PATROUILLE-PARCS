@@ -36,9 +36,9 @@ import RouteLine from "./RouteLine";
 import GPSTrace from "./GPSTrace";
 
 const defaultIcon = new L.Icon({
-  iconUrl: "/leaflet/marker-icon.png",
-  iconRetinaUrl: "/leaflet/marker-icon-2x.png",
-  shadowUrl: "/leaflet/marker-shadow.png",
+  iconUrl: `${import.meta.env.BASE_URL}leaflet/marker-icon.png`,
+  iconRetinaUrl: `${import.meta.env.BASE_URL}leaflet/marker-icon-2x.png`,
+  shadowUrl: `${import.meta.env.BASE_URL}leaflet/marker-shadow.png`,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -292,6 +292,7 @@ function MapView({
 
 
         <Marker
+  icon={defaultIcon}
   position={[
     pc.latitude,
     pc.longitude
