@@ -58,4 +58,24 @@ export const parcs = [
     ferme: false,
     heureFermeture: null,
   },
+
+    {
+    id: "oliviers",
+    nom: "Square des oliviers",
+    adresse: "Adresse du parc",
+    latitude: 43.651477,
+    longitude: 3.908762,
+    ferme: false,
+    heureFermeture: null,
+  },
+
+    {
+    id: "Crouzette",
+    nom: "Square de la crouzette",
+    adresse: "Adresse du parc",
+    latitude: 43.632548,
+    longitude: 3.898478,
+    ferme: false,
+    heureFermeture: null,
+  },
 ];
