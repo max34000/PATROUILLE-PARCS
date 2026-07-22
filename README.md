@@ -1,23 +1,12 @@
-```md
 # 🚓 PATROUILLE-PARCS
 
 ![PATROUILLE-PARCS](src/assets/hero.png)
 
 ## 🌳 Application mobile de gestion des tournées de surveillance des parcs
 
-PATROUILLE-PARCS est une application web progressive (**PWA**) destinée aux agents de terrain chargés de la surveillance des parcs.
+PATROUILLE-PARCS est une application **PWA mobile** destinée aux agents de terrain chargés de la surveillance des parcs.
 
-Elle permet de réaliser une tournée dynamique basée sur la position GPS réelle de l'agent :
-
-- visualisation des parcs sur carte ;
-- suivi GPS temps réel ;
-- optimisation automatique de tournée ;
-- navigation vers les parcs ;
-- fermeture des parcs contrôlés ;
-- historique des interventions ;
-- fonctionnement sur smartphone.
-
-L'objectif est de fournir un outil simple, rapide et adapté aux conditions réelles du terrain.
+Elle permet de réaliser une tournée dynamique basée sur la position GPS réelle de l'agent.
 
 ---
 
@@ -25,28 +14,23 @@ L'objectif est de fournir un outil simple, rapide et adapté aux conditions rée
 
 ## V3.1 — Tournée dynamique GPS
 
-La version actuelle introduit une gestion intelligente de la tournée.
+La tournée n'est plus basée sur un ordre fixe.
 
-Contrairement à une liste fixe, l'application adapte le parcours selon la position réelle de l'agent.
+L'application adapte automatiquement le parcours selon la position réelle de l'agent.
 
 Fonctionnement :
-```
 
-Position GPS agent
-↓
-Recherche des parcs ouverts
-↓
-Calcul du parc le plus proche
-↓
-Navigation
-↓
-Fermeture du parc
-↓
-Nouveau calcul automatique
-
-```
-
-Chaque fermeture entraîne une nouvelle optimisation.
+📍 Position GPS agent  
+⬇️  
+🌳 Recherche des parcs ouverts  
+⬇️  
+📏 Calcul des distances  
+⬇️  
+🚓 Proposition du parc le plus proche  
+⬇️  
+✅ Fermeture du parc  
+⬇️  
+🔄 Nouveau calcul automatique
 
 ---
 
@@ -54,38 +38,34 @@ Chaque fermeture entraîne une nouvelle optimisation.
 
 ## 🗺️ Carte interactive
 
-- Carte basée sur OpenStreetMap.
 - Affichage des parcs.
 - Position GPS de l'agent.
-- Affichage du poste de contrôle.
-- Tracé du déplacement GPS.
+- Suivi du déplacement.
+- Tracé GPS.
 - Affichage des itinéraires.
 
 ---
 
-## 📍 Géolocalisation temps réel
+## 📍 GPS temps réel
 
-L'application utilise le GPS du smartphone afin de :
+L'application utilise le GPS du smartphone pour :
 
-- suivre la position de l'agent ;
+- connaître la position de l'agent ;
 - calculer les distances ;
-- proposer le prochain parc ;
-- enregistrer le déplacement.
-
-Le système contrôle également la précision GPS afin d'éviter les positions trop imprécises.
+- optimiser la tournée ;
+- suivre le déplacement terrain.
 
 ---
 
-## 🚓 Mode Patrouille
+## 🚓 Mode patrouille
 
-Le mode principal permet :
+L'agent peut :
 
-- d'afficher le prochain parc ;
-- voir son adresse ;
-- connaître la distance ;
-- connaître le temps estimé ;
+- voir le prochain parc ;
+- consulter l'adresse ;
 - lancer la navigation ;
-- fermer le parc.
+- fermer le parc contrôlé ;
+- continuer automatiquement la tournée.
 
 ---
 
@@ -93,167 +73,142 @@ Le mode principal permet :
 
 Chaque parc possède :
 
-- un identifiant unique ;
 - un nom ;
 - une adresse ;
-- des coordonnées GPS ;
-- un état ouvert/fermé ;
+- une position GPS ;
+- un état ouvert ou fermé ;
 - une heure de fermeture.
 
 Lorsqu'un parc est fermé :
 
 - il est enregistré dans l'historique ;
-- il est retiré du calcul de tournée ;
+- il est retiré de la tournée ;
 - le prochain parc est recalculé.
 
 ---
 
-## 🧭 Navigation GPS
+# 🧭 Optimisation de tournée
 
-L'application peut ouvrir la navigation du téléphone vers le parc sélectionné.
+L'application utilise actuellement un algorithme de proximité :
 
-Compatible avec les applications de navigation disponibles sur l'appareil.
+**Plus proche voisin**
+
+Le départ se fait depuis :
+
+```
+la position GPS réelle de l'agent
+```
+
+Le poste de contrôle n'est pas imposé comme départ.
+
+Le PC devient uniquement un point de retour final.
 
 ---
 
 # 📱 Application PWA
 
-PATROUILLE-PARCS est installable comme une application mobile.
+PATROUILLE-PARCS peut être installée comme une application mobile.
 
 Fonctionnalités :
 
 - installation sur écran d'accueil ;
 - affichage plein écran ;
-- icône personnalisée ;
-- cache des ressources ;
+- fonctionnement mobile ;
 - mise à jour automatique.
 
-Application disponible :
-
-```
+Application :
 
 https://max34000.github.io/PATROUILLE-PARCS/
 
-```
+---
+
+# 🛠️ Technologies
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Leaflet
+- OpenStreetMap
+- Vite PWA
+- GitHub Pages
 
 ---
 
-# 🏗️ Architecture technique
+# 📂 Organisation du projet
 
-## Technologies
+Le projet est organisé autour de plusieurs modules :
 
-| Technologie | Utilisation |
-|---|---|
-| React | Interface utilisateur |
-| TypeScript | Typage du projet |
-| Vite | Build et développement |
-| Tailwind CSS | Interface graphique |
-| Leaflet | Cartographie |
-| OpenStreetMap | Données cartographiques |
-| Vite PWA | Application installable |
-| GitHub Pages | Hébergement |
+## Interface
+
+```
+src/components
+src/screens
+```
+
+Gestion des écrans et composants.
 
 ---
 
-# 📂 Structure du projet
+## GPS et navigation
 
 ```
-
-PATROUILLE-PARCS
-
-├── public
-│ ├── icônes PWA
-│ ├── ressources Leaflet
-│ └── manifest
-
-├── src
-
-│ ├── components
-│ │ ├── Layout
-│ │ ├── Map
-│ │ ├── Patrol
-│ │ └── Route
-
-│ ├── screens
-│ │ ├── MapScreen
-│ │ ├── PatrolScreen
-│ │ └── TerrainScreen
-
-│ ├── hooks
-│ │ ├── useGPS
-│ │ ├── useNavigation
-│ │ └── usePatrol
-
-│ ├── services
-
-│ ├── utils
-│ │ ├── distance
-│ │ ├── historique
-│ │ ├── navigation
-│ │ └── routeOptimizer
-
-│ ├── data
-│ │ ├── parcs
-│ │ ├── pc
-│ │ └── tournee
-
-│ └── types
-
-├── vite.config.ts
-├── package.json
-└── README.md
-
+src/hooks
+src/services
 ```
+
+Gestion :
+
+- GPS temps réel ;
+- navigation ;
+- calculs associés.
 
 ---
 
-# 🧠 Calcul de tournée
-
-Le moteur de tournée utilise un algorithme de proximité :
-
-**Plus proche voisin**
-
-Principe :
+## Données
 
 ```
-
-Agent
-↓
-Parcs ouverts
-↓
-Calcul des distances
-↓
-Sélection du plus proche
-↓
-Nouvelle position
-↓
-Recalcul
-
+src/data
 ```
 
-La tournée commence toujours depuis la position réelle de l'agent.
+Contient :
 
-Le poste de contrôle n'est pas utilisé comme point de départ obligatoire.
+- les parcs ;
+- le poste de contrôle ;
+- les données de tournée.
 
 ---
 
-# 💾 Sauvegarde locale
+## Fonctions techniques
+
+```
+src/utils
+```
+
+Contient :
+
+- distances ;
+- optimisation de parcours ;
+- historique ;
+- navigation.
+
+---
+
+# 💾 Données locales
 
 L'application fonctionne sans serveur.
 
-Les données sont conservées dans :
+Les informations sont stockées localement dans le navigateur :
 
 ```
-
 localStorage
-
-````
+```
 
 Données sauvegardées :
 
 - état des parcs ;
-- progression de tournée ;
-- historique des fermetures.
+- progression ;
+- historique.
 
 ---
 
@@ -265,17 +220,10 @@ Pré-requis :
 - npm
 - Git
 
-
 Cloner :
 
 ```bash
 git clone https://github.com/max34000/PATROUILLE-PARCS.git
-````
-
-Entrer dans le projet :
-
-```bash
-cd PATROUILLE-PARCS
 ```
 
 Installer :
@@ -288,7 +236,7 @@ npm install
 
 # ▶️ Commandes
 
-## Développement
+Développement :
 
 ```bash
 npm run dev
@@ -300,9 +248,7 @@ Avec accès réseau :
 npm run dev -- --host
 ```
 
----
-
-## Compilation production
+Compilation :
 
 ```bash
 npm run build
@@ -310,74 +256,51 @@ npm run build
 
 ---
 
-## Prévisualisation
-
-```bash
-npm run preview
-```
-
----
-
 # 🚀 Déploiement
 
-Le déploiement est réalisé automatiquement via GitHub Actions.
+Le projet est déployé automatiquement via GitHub Actions.
 
-Branche principale :
+Branche principale actuelle :
 
 ```
 v3.0-final
-```
-
-Après validation :
-
-```bash
-git add .
-git commit -m "message"
-git push origin v3.0-final
 ```
 
 ---
 
 # 🔐 Sécurité
 
-Les éléments sensibles doivent rester hors du dépôt :
+Les éléments sensibles restent hors dépôt :
 
 - clés API ;
-- fichiers `.env` ;
 - tokens ;
-- configurations privées.
+- fichiers `.env`.
 
-Le fichier :
-
-```
-.env
-```
-
-est ignoré par Git.
+Le fichier `.env` est ignoré par Git.
 
 ---
 
 # 🧪 Tests terrain
 
-Avant validation d'une version :
+Avant chaque version :
 
-## Test GPS
+## GPS
 
 - autorisation localisation ;
 - position correcte ;
 - suivi déplacement.
 
-## Test tournée
+## Tournée
 
 - premier parc correct ;
-- fermeture d'un parc ;
-- recalcul du suivant.
+- fermeture ;
+- recalcul automatique.
 
-## Test PWA
+## Mobile
 
-- installation mobile ;
-- mise à jour ;
-- stockage local.
+- installation PWA ;
+- affichage smartphone ;
+- mise à jour.
 
 ---
 
@@ -387,36 +310,20 @@ Avant validation d'une version :
 
 Prévisions :
 
-- amélioration affichage terrain ;
-- meilleure gestion des itinéraires ;
+- amélioration navigation ;
 - optimisation routière ;
-- amélioration UX mobile.
+- amélioration interface terrain.
+
+---
 
 ## V4
 
 Évolutions possibles :
 
 - synchronisation serveur ;
-- comptes utilisateurs ;
+- gestion multi-agents ;
 - statistiques ;
-- gestion multi-agents.
-
----
-
-# 📜 Historique
-
-## V3.1
-
-- Optimisation dynamique GPS.
-- Départ depuis position agent.
-- Recalcul automatique après fermeture.
-
-## V3.0
-
-- Application PWA complète.
-- Carte interactive.
-- Gestion des parcs.
-- Historique local.
+- comptes utilisateurs.
 
 ---
 
@@ -426,8 +333,4 @@ Projet développé par :
 
 **max34000**
 
-Application dédiée à la gestion terrain des tournées de surveillance des parcs.
-
-```
-
-```
+Application terrain de gestion des tournées de surveillance des parcs.
