@@ -2,51 +2,52 @@ import type { Parc } from "../types/Parc";
 import { distance } from "./distance";
 
 
-/**
- * Recherche le parc ouvert le plus proche
- * à partir de la position GPS de l'agent
- */
-
 export function trouverParcLePlusProche(
   position: [number, number],
   parcs: Parc[]
 ): Parc | null {
 
 
-  const parcsOuverts = parcs.filter(
+  const ouverts = parcs.filter(
     (parc) => !parc.ferme
   );
 
 
-  if (parcsOuverts.length === 0) {
+  if (ouverts.length === 0) {
     return null;
   }
 
 
-  return parcsOuverts.reduce(
-    (plusProche, parcActuel) => {
+  let meilleur = ouverts[0];
+
+  let distanceMin = distance(
+    position[0],
+    position[1],
+    meilleur.latitude,
+    meilleur.longitude
+  );
 
 
-      const distanceActuelle = distance(
-        position[0],
-        position[1],
-        parcActuel.latitude,
-        parcActuel.longitude
-      );
+  ouverts.forEach((parc) => {
+
+    const d = distance(
+      position[0],
+      position[1],
+      parc.latitude,
+      parc.longitude
+    );
 
 
-      const distancePlusProche = distance(
-        position[0],
-        position[1],
-        plusProche.latitude,
-        plusProche.longitude
-      );
+    if (d < distanceMin) {
 
-
-      return distanceActuelle < distancePlusProche
-        ? parcActuel
-        : plusProche;
+      distanceMin = d;
+      meilleur = parc;
 
     }
-  );
+
+  });
+
+
+  return meilleur;
+
 }

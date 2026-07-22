@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { parcs } from "../data/parcs";
 import type { Parc } from "../types/Parc";
-import { trouverParcLePlusProche } from "../utils/nextPark";
+import { calculerTournee } from "../utils/routeOptimizer";
+import { pc } from "../data/pc";
 import { sauvegarderHistorique } from "../utils/historique";
 
 type Position = [number, number] | null;
@@ -20,12 +21,23 @@ export function usePatrol({
   setRetourPC,
 }: Props) {
   const prochainParc = useMemo(() => {
-    if (positionAgent) {
-      return trouverParcLePlusProche(positionAgent, listeParcs);
-    }
 
-    return listeParcs.find((p) => !p.ferme) ?? null;
-  }, [positionAgent, listeParcs]);
+  if (!positionAgent) {
+    return null;
+  }
+
+
+  const tournee = calculerTournee(
+    positionAgent,
+    listeParcs,
+    pc
+  );
+
+
+  return tournee[0] ?? null;
+
+
+}, [positionAgent, listeParcs]);
 
   function fermerParc(id: string) {
     const parc = listeParcs.find((p) => p.id === id);
