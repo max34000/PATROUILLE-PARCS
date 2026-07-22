@@ -1,466 +1,576 @@
+```md
 # 🤖 README_CHATGPT.md
 
-# PATROUILLE-PARCS
+# PATROUILLE-PARCS — Contexte projet pour assistance IA
 
-## Documentation interne de reprise du projet
+Ce document sert de mémoire technique afin de permettre une reprise rapide du projet avec ChatGPT ou un autre assistant.
 
-> Ce document sert de mémoire technique et fonctionnelle du projet.
->
-> Son objectif est de permettre une reprise rapide du développement sans perdre le contexte, les choix techniques et les décisions prises.
+Il décrit :
+
+- l'objectif du projet ;
+- l'architecture actuelle ;
+- les choix techniques ;
+- les fonctionnalités validées ;
+- les points d'attention ;
+- les évolutions prévues.
 
 ---
 
-# 1. Présentation du projet
+# 📌 Présentation du projet
 
-## Nom
+Nom :
+```
 
 PATROUILLE-PARCS
 
-## Version de référence
+```
 
-V3.0.1
+Type :
 
-## Statut
+```
 
-✅ Version stable déployée en production
+Application mobile PWA de gestion de tournées terrain
 
-Adresse :
+```
 
-https://max34000.github.io/PATROUILLE-PARCS/
+Objectif :
 
----
+Permettre à un agent de surveillance de réaliser une tournée dynamique de fermeture et contrôle de parcs.
 
-# 2. Objectif du projet
-
-PATROUILLE-PARCS est une application destinée aux agents effectuant des tournées de surveillance et de fermeture des parcs municipaux.
-
-L'application permet :
-
-- de connaître la position GPS de l'agent ;
-- d'afficher les parcs sur une carte ;
-- d'organiser une tournée ;
-- de guider l'agent ;
-- de fermer les parcs visités ;
-- de suivre l'avancement ;
-- de terminer la tournée au point de retour PC Papa Charlie.
+L'application doit fonctionner principalement sur smartphone.
 
 ---
 
-# 3. Contexte métier
+# 🟢 État actuel
 
-Le fonctionnement réel est basé sur une tournée terrain.
+Version :
 
-L'agent :
+```
 
-1. démarre depuis PC Papa Charlie ;
-2. se déplace sur le terrain ;
-3. ferme les parcs dans un ordre optimisé ;
-4. valide chaque fermeture ;
-5. revient au PC une fois la tournée terminée.
+V3.1
 
-L'application doit rester :
+```
 
-- simple ;
-- rapide ;
-- utilisable en mobilité ;
-- adaptée aux conditions terrain.
+Statut :
 
----
+```
 
-# 4. Principe fondamental
+Fonctionnelle
 
-Le point central du projet est :
+```
 
-> La position réelle de l'agent est la référence pour organiser la tournée.
+Dernière validation :
 
-La tournée ne doit jamais être considérée comme complètement figée.
-
-La future évolution V3.1 améliorera ce point avec un recalcul dynamique.
+✅ GPS réel validé sur téléphone
+✅ HTTPS validé via GitHub Pages
+✅ Position agent récupérée
+✅ Choix du parc le plus proche validé
+✅ Recalcul après fermeture validé
+✅ Application PWA fonctionnelle
 
 ---
 
-# 5. État actuel V3.0.1
+# 🧠 Logique métier principale
 
-## Fonctionnalités terminées
+La tournée fonctionne maintenant selon cette logique :
 
-✅ Carte OpenStreetMap
+```
 
-✅ Position GPS agent
+Position GPS actuelle agent
+|
+↓
+Liste des parcs ouverts
+|
+↓
+Calcul des distances
+|
+↓
+Parc le plus proche
+|
+↓
+Navigation
+|
+↓
+Fermeture du parc
+|
+↓
+Nouveau calcul
 
-✅ Affichage des parcs
+```
 
-✅ Marqueurs Leaflet
+Important :
 
-✅ Affichage PC Papa Charlie
+Le départ n'est PAS le PC.
 
-✅ Calcul initial de tournée
+Le départ est toujours :
 
-✅ Tracé itinéraire
+```
 
-✅ Fermeture d'un parc
+position réelle GPS de l'agent
 
-✅ Annulation fermeture
+```
 
-✅ Progression
-
-✅ Retour PC
-
-✅ Navigation
-
-✅ PWA
-
-✅ Déploiement GitHub Pages
+Le PC sert uniquement comme point de retour final.
 
 ---
 
-# 6. Fonctionnement actuel
+# 🏗️ Architecture
+
+Technologies :
+
+```
+
+React
+TypeScript
+Vite
+Tailwind CSS
+Leaflet
+OpenStreetMap
+Vite PWA
+GitHub Pages
+
+```
+
+---
+
+# 📂 Organisation importante
+
+## Application principale
+
+```
+
+src/App.tsx
+
+```
+
+Responsable :
+
+- état global ;
+- modes application ;
+- gestion GPS ;
+- gestion parcs ;
+- affichage écrans.
+
+---
+
+## GPS
+
+```
+
+src/hooks/useGPS.ts
+
+```
+
+Responsable :
+
+- récupération GPS ;
+- watchPosition ;
+- précision ;
+- erreurs.
+
+Ne pas modifier sans raison.
+
+---
 
 ## Carte
 
-La carte utilise :
+```
 
-- Leaflet
-- React-Leaflet
-- OpenStreetMap
-
-Les marqueurs sont gérés localement.
-
-Les icônes Leaflet sont stockées dans :
+src/components/Map/
 
 ```
-public/leaflet/
+
+Contient :
+
+- MapView
+- PositionMarker
+- ParkMarkers
+- RouteLine
+- GPSTrace
+
+---
+
+## Gestion tournée
+
+```
+
+src/utils/routeOptimizer.ts
+
+```
+
+Contient :
+
+- calcul du prochain parc ;
+- logique plus proche voisin.
+
+---
+
+## Navigation
+
+```
+
+src/hooks/useNavigation.ts
+
+src/utils/navigation.ts
+
+```
+
+Responsable :
+
+- distance ;
+- durée ;
+- ouverture navigation externe.
+
+---
+
+## Données
+
+```
+
+src/data/
+
+```
+
+Contient :
+
+```
+
+parcs.ts
+pc.ts
+tournee.ts
+
+```
+
+Les nouveaux parcs doivent être ajoutés dans :
+
+```
+
+src/data/parcs.ts
+
 ```
 
 ---
 
-# 7. Architecture technique
+# 💾 Stockage
 
-## Technologies
+Le projet ne possède actuellement pas de serveur.
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- Leaflet
-- React-Leaflet
-- Vite PWA
-- GitHub Pages
-
----
-
-# 8. Organisation du code
-
-Structure principale :
+Stockage :
 
 ```
-src
 
-├── components
+localStorage
 
-│   ├── Map
+```
 
-│   │   ├── MapView.tsx
-│   │   ├── PositionMarker.tsx
-│   │   ├── RouteLine.tsx
-│   │   ├── GPSTrace.tsx
-│   │   └── MapCenter.tsx
-│
-├── data
-│
-├── hooks
-│
-├── services
-│
-├── types
-│
-└── App.tsx
+Clés principales :
+
+```
+
+patrouille-parcs
+historique
+
+```
+
+Attention :
+
+Les anciennes données locales peuvent empêcher de voir les nouveaux parcs.
+
+Pour réinitialiser :
+
+Navigateur :
+
+```
+
+Effacer stockage du site
+
+```
+
+ou via application :
+
+```
+
+Nouvelle tournée
+
 ```
 
 ---
 
-# 9. MapView.tsx
+# ⚠️ Points importants pour les futures modifications
 
-Composant principal de cartographie.
+## 1 — Toujours tester après modification
 
-Responsabilités :
-
-- création de la carte ;
-- affichage des tuiles ;
-- affichage position agent ;
-- affichage GPS ;
-- affichage routes ;
-- affichage PC ;
-- affichage parcs.
-
----
-
-# 10. Logique des parcs
-
-Chaque parc possède un état :
+Avant commit :
 
 ```
-Ouvert
-   |
-   ↓
-Fermé
-```
-
-Un parc fermé :
-
-- disparaît de la tournée active ;
-- reste enregistré comme fermé ;
-- ne doit pas être proposé à nouveau.
-
----
-
-# 11. GPS
-
-Le GPS sert à :
-
-- centrer la carte ;
-- afficher l'agent ;
-- enregistrer une trace ;
-- préparer les futurs recalculs.
-
----
-
-# 12. Retour PC Papa Charlie
-
-PC Papa Charlie est le point final obligatoire.
-
-Quand tous les parcs sont fermés :
-
-- le trajet retour est affiché ;
-- l'agent peut naviguer vers le PC.
-
----
-
-# 13. Déploiement
-
-Le projet utilise :
-
-- GitHub Actions
-- GitHub Pages
-
-Workflow :
-
-```
-git push
-
-↓
-
-GitHub Action
-
-↓
-
-npm install
-
-↓
 
 npm run build
 
-↓
+```
 
-Publication dist
+Doit être :
 
-↓
+```
 
-GitHub Pages
+built ok
+
 ```
 
 ---
 
-# 14. Historique des problèmes rencontrés
+## 2 — Tester en HTTPS
 
-## Leaflet
+La géolocalisation mobile nécessite :
 
-Problème :
+```
 
-Les marqueurs n'apparaissaient pas.
+https://
+
+```
+
+Ne pas utiliser :
+
+```
+
+http://192.168.x.x
+
+```
+
+pour tester le GPS.
+
+---
+
+## 3 — Ne pas ajouter de secrets
+
+Ne jamais envoyer dans Git :
+
+```
+
+.env
+API keys
+tokens
+mots de passe
+
+```
+
+Le fichier :
+
+```
+
+.env
+
+```
+
+est ignoré.
+
+---
+
+# 🐛 Problèmes déjà rencontrés
+
+## GPS non demandé
 
 Cause :
 
-Les images Leaflet n'étaient pas disponibles en production.
+Utilisation de :
+
+```
+
+http://IP_LOCALE:5173
+
+```
 
 Solution :
 
-Ajout :
+Utiliser :
 
 ```
-public/leaflet/
+
+https://max34000.github.io/PATROUILLE-PARCS/
+
+```
+
+---
+
+## Nouveaux parcs absents
+
+Cause :
+
+Stockage local ancien.
+
+Solution :
+
+Vider :
+
+```
+
+localStorage
+
+```
+
+---
+
+## Erreur PWA
+
+Erreur :
+
+```
+
+Cannot find module virtual:pwa-register
+
+```
+
+Cause :
+
+Type PWA manquant.
+
+Solution :
+
+Ajouter :
+
+```
+
+src/vite-env.d.ts
+
 ```
 
 avec :
 
 ```
-marker-icon.png
-marker-icon-2x.png
-marker-shadow.png
+
+/// <reference types="vite-plugin-pwa/client" />
+
+```
+
+---
+
+# 🔧 Commandes utiles
+
+Installation :
+
+```
+
+npm install
+
+```
+
+Développement :
+
+```
+
+npm run dev
+
+```
+
+Avec réseau :
+
+```
+
+npm run dev -- --host
+
+```
+
+Build :
+
+```
+
+npm run build
+
+```
+
+Git :
+
+```
+
+git status
+
+git add .
+
+git commit -m "message"
+
+git push origin v3.0-final
+
 ```
 
 ---
 
-## GitHub Pages
-
-Problème :
-
-Page blanche.
-
-Cause :
-
-Le chemin Vite ne correspondait pas au sous-dossier GitHub Pages.
-
-Solution :
-
-Dans vite.config.ts :
-
-```
-base:
-"/PATROUILLE-PARCS/"
-```
-
----
-
-## Workflow GitHub
-
-Problème :
-
-Impossible de pousser un workflow.
-
-Cause :
-
-Token GitHub sans permission workflow.
-
-Solution :
-
-Passage en authentification SSH.
-
----
-
-# 15. Règles importantes
-
-Ne jamais :
-
-- casser la logique GPS ;
-- supprimer PC Papa Charlie ;
-- réintroduire des parcs fermés ;
-- modifier le déploiement sans tester ;
-- modifier Leaflet sans tester la production.
-
----
-
-# 16. Décisions importantes
-
-## Choix PWA
-
-Décision :
-
-Créer une PWA plutôt qu'une application native.
-
-Raison :
-
-Une seule base de code pour Android et iPhone.
-
----
-
-## Choix GitHub Pages
-
-Décision :
-
-Utiliser GitHub Pages pour le déploiement.
-
-Raison :
-
-- gratuit ;
-- simple ;
-- automatique ;
-- suffisant pour l'application actuelle.
-
----
-
-# 17. Prochaine évolution : V3.1
-
-Objectif principal :
-
-## Recalcul dynamique de tournée
-
-Aujourd'hui :
-
-```
-Calcul initial
-
-A → B → C → D
-```
-
-Évolution :
-
-```
-Fermeture A
-
-↓
-
-Nouvelle position GPS
-
-↓
-
-Nouveau calcul
-
-↓
-
-Nouvel itinéraire
-```
-
----
-
-# 18. Vision V4
-
-Possibilités :
-
-- multi-agents ;
-- synchronisation ;
-- comptes utilisateurs ;
-- historique ;
-- statistiques ;
-- serveur distant.
-
----
-
-# 19. Méthode de développement
+# 🚦 Règles de développement
 
 Toujours :
 
-1. stabiliser ;
-2. tester ;
-3. documenter ;
-4. taguer la version ;
-5. commencer l'évolution suivante.
+- conserver le fonctionnement mobile ;
+- tester GPS après modification ;
+- éviter les dépendances inutiles ;
+- privilégier une architecture simple ;
+- conserver TypeScript strict ;
+- documenter les gros changements.
 
 ---
 
-# 20. Reprise future
+# 🗺️ Prochaines évolutions prévues
 
-Pour reprendre le projet :
+## V3.2
 
-1. lire README.md ;
-2. lire README_CHATGPT.md ;
-3. vérifier la version Git ;
-4. lancer :
+Priorités :
+
+- améliorer calcul routier ;
+- afficher navigation plus précisément ;
+- améliorer affichage terrain ;
+- améliorer UX mobile.
+
+---
+
+## V4
+
+Possibilités :
+
+- serveur distant ;
+- comptes agents ;
+- synchronisation ;
+- statistiques ;
+- gestion multi-agents.
+
+---
+
+# 📝 Notes de reprise
+
+Si une nouvelle session commence, commencer par vérifier :
+
+1. Version Git :
 
 ```
-npm install
-npm run dev
-```
 
-5. tester :
+git status
 
 ```
+
+2. Compilation :
+
+```
+
 npm run build
+
 ```
 
-Avant toute modification importante.
+3. Branche :
+
+```
+
+v3.0-final
+
+```
+
+4. Fonctionnement :
+
+- GPS
+- carte
+- tournée
+- fermeture parc
 
 ---
 
-# Fin du document
+# Fin du contexte projet
 
-PATROUILLE-PARCS V3.0.1 est considérée comme la base stable de référence.
+PATROUILLE-PARCS est actuellement une application terrain fonctionnelle V3.1.
+
+La priorité est de conserver une base stable avant d'ajouter de nouvelles fonctionnalités.
+```
