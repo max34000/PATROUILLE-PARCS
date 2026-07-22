@@ -38,11 +38,11 @@ export default function ConfirmDialog({
 
         <div className="flex gap-3 mt-8">
           <button
-            onClick={onCancel}
-            className="flex-1 rounded-xl border border-gray-300 py-3"
-          >
-            {cancelLabel}
-          </button>
+  onClick={onCancel}
+  className="flex-1 rounded-xl border border-gray-300 bg-white text-gray-800 font-medium py-3 hover:bg-gray-100"
+>
+  {cancelLabel}
+</button>
 
           <button
             onClick={onConfirm}

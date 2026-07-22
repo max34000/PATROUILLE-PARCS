@@ -544,8 +544,25 @@ const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   cancelLabel="Annuler"
   onCancel={() => setConfirmResetOpen(false)}
   onConfirm={() => {
-    setConfirmResetOpen(false);
-  }}
+  setConfirmResetOpen(false);
+
+  setListeParcs(
+    parcs.map((p) => ({
+      ...p,
+      ferme: false,
+      heureFermeture: undefined,
+    }))
+  );
+
+  localStorage.removeItem("historique");
+
+  setTraceGPS([]);
+
+  setRetourPC(false);
+
+  setModePatrouille(false);
+  setModeTerrain(false);
+}}
 />
 
 <MainMenu
@@ -585,15 +602,17 @@ const [confirmResetOpen, setConfirmResetOpen] = useState(false);
 
 
 
-      <MapScreen
-  parcs={listeParcs}
-  setParcs={setListeParcs}
-  positionAgent={positionAgent}
-  traceGPS={traceGPS}
-  navigation={navigation}
-  retourPC={retourPC}
-  onFermerParc={fermerParc}
-/>
+      {!modePatrouille && !modeTerrain && (
+  <MapScreen
+    parcs={listeParcs}
+    setParcs={setListeParcs}
+    positionAgent={positionAgent}
+    traceGPS={traceGPS}
+    navigation={navigation}
+    retourPC={retourPC}
+    onFermerParc={fermerParc}
+  />
+)}
 
 
 

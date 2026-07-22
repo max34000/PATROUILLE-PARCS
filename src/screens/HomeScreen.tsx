@@ -12,25 +12,35 @@ export default function HomeScreen({
   onAbout,
 }: Props) {
   const button =
-    "w-full bg-white text-green-700 rounded-2xl p-5 font-bold text-lg shadow hover:scale-[1.02] transition";
+    "w-full bg-white text-green-700 rounded-2xl p-5 font-bold text-lg shadow-lg hover:scale-105 transition";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center min-h-[75vh] max-w-md mx-auto">
 
-      <h1 className="text-6xl mb-4">🌳</h1>
+      <div className="text-center mb-12">
 
-      <h2 className="text-3xl font-bold mb-10 text-center">
-        PATROUILLE-PARCS
-      </h2>
+        <div className="text-7xl mb-4">
+          🌳
+        </div>
+
+        <h1 className="text-4xl font-bold">
+          PATROUILLE-PARCS
+        </h1>
+
+        <p className="text-green-100 mt-2">
+          CCFF - Maxime B.
+        </p>
+
+      </div>
 
       <div className="flex flex-col gap-4 w-full">
 
         <button className={button} onClick={onStart}>
-          🚓 Commencer une tournée
+          🚓 Nouvelle tournée
         </button>
 
         <button className={button} onClick={onResume}>
-          📋 Reprendre la tournée
+          ▶️ Reprendre la tournée
         </button>
 
         <button className={button} onClick={onSettings}>
@@ -42,6 +52,10 @@ export default function HomeScreen({
         </button>
 
       </div>
+
+      <p className="text-xs text-green-100 mt-10 text-center">
+        Version 1.0 • CCFF
+      </p>
 
     </div>
   );

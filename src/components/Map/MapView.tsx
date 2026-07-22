@@ -40,17 +40,16 @@ import GPSTrace from "./GPSTrace";
 
 
 
-L.Icon.Default.mergeOptions({
-
+const defaultIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
   shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png"
-
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 
@@ -174,30 +173,14 @@ function MapView({
 
 
       <MapContainer
-
-
-        center={
-
-          positionAgent ||
-
-          centreInitial
-
-        }
-
-
-        zoom={15}
-
-
-        style={{
-
-          height:"100%",
-
-          width:"100%"
-
-        }}
-
-
-      >
+  className="z-0"
+  center={positionAgent || centreInitial}
+  zoom={15}
+  style={{
+    height: "100%",
+    width: "100%"
+  }}
+>
 
 
 
